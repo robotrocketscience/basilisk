@@ -44,6 +44,21 @@ protectAllClasses(sys.modules[__name__])
 
 BasiliskError = _bskLogging.BasiliskError
 
+import enum
+
+class LogLevel(enum.IntEnum):
+    DEBUG = BSK_DEBUG
+    INFO = BSK_INFORMATION
+    WARNING = BSK_WARNING
+    ERROR = BSK_ERROR
+    SILENT = BSK_SILENT
+
+DEBUG = LogLevel.DEBUG
+INFO = LogLevel.INFO
+WARNING = LogLevel.WARNING
+ERROR = LogLevel.ERROR
+SILENT = LogLevel.SILENT
+
 def _bskLogger_debug(self, msg):
     self._pyDebug(msg)
 
