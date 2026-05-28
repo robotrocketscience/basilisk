@@ -115,6 +115,9 @@ class BSKLogger
         $self->bskLog(BSK_ERROR, "%s", info);
         throw BasiliskError(info);
     }
+    void _pyDebug(const char* info)   { $self->bskLog(BSK_DEBUG,       "%s", info); }
+    void _pyInfo(const char* info)    { $self->bskLog(BSK_INFORMATION,  "%s", info); }
+    void _pyWarning(const char* info) { $self->bskLog(BSK_WARNING,      "%s", info); }
 }
 #endif
 

@@ -43,4 +43,25 @@ import sys
 protectAllClasses(sys.modules[__name__])
 
 BasiliskError = _bskLogging.BasiliskError
+
+def _bskLogger_debug(self, msg):
+    self._pyDebug(msg)
+
+def _bskLogger_info(self, msg):
+    self._pyInfo(msg)
+
+def _bskLogger_warning(self, msg):
+    self._pyWarning(msg)
+
+def _bskLogger_error(self, msg):
+    self.bskError(msg)
+
+def _bskLogger_setLevel(self, level):
+    self.setLogLevel(level)
+
+BSKLogger.debug = _bskLogger_debug
+BSKLogger.info = _bskLogger_info
+BSKLogger.warning = _bskLogger_warning
+BSKLogger.error = _bskLogger_error
+BSKLogger.setLevel = _bskLogger_setLevel
 %}
