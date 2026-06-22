@@ -456,7 +456,35 @@ configuration setting messages.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>scSim</strong> – variable with the simulationBaseClass copy</p></li>
 <li><p><strong>simTaskName</strong> – task to which to add the vizInterface module</p></li>
-<li><p><strong>scList</strong> – <a class="reference internal" href="../simulation/dynamics/spacecraft/spacecraft.html#spacecraft"><span class="std std-ref">C++ Module: spacecraft</span></a> objects.  Can be a single object or list of objects</p></li>
+<li><p><strong>scList</strong> – <p><a class="reference internal" href="../simulation/dynamics/spacecraft/spacecraft.html#spacecraft"><span class="std std-ref">C++ Module: spacecraft</span></a> objects, <a class="reference internal" href="../simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#mjscene"><span class="std std-ref">MJScene</span></a> objects, or tuples of (name, stateOutMsg).
+Can be a single object or list of objects.
+When an <a class="reference internal" href="../simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#mjscene"><span class="std std-ref">MJScene</span></a> is provided, all bodies are auto-discovered and their
+parent-child hierarchy is resolved from the MuJoCo model.  Each
+world-parented MuJoCo body is emitted as an individual Vizard spacecraft;
+non-root MuJoCo bodies are emitted as child spacecraft.  Each emitted
+Vizard spacecraft name must be unique across this list.  For an
+MJScene, the emitted names are the local MuJoCo body names.</p>
+<p><strong>Gravity bodies</strong> - attach a <code class="docutils literal notranslate"><span class="pre">gravBodyFactory</span></code> body list to the scene
+before calling this function so that planets appear in Vizard:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gravFactory</span> <span class="o">=</span> <span class="n">simIncludeGravBody</span><span class="o">.</span><span class="n">gravBodyFactory</span><span class="p">()</span>
+<span class="n">earth</span> <span class="o">=</span> <span class="n">gravFactory</span><span class="o">.</span><span class="n">createEarth</span><span class="p">()</span>
+<span class="n">earth</span><span class="o">.</span><span class="n">isCentralBody</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">scene</span><span class="o">.</span><span class="n">_vizGravBodies</span> <span class="o">=</span> <span class="n">gravFactory</span><span class="o">.</span><span class="n">gravBodies</span>
+</pre></div>
+</div>
+<p><strong>Visual elements</strong> - <code class="docutils literal notranslate"><span class="pre">cssList</span></code>, <code class="docutils literal notranslate"><span class="pre">lightList</span></code>, etc. support an extra
+addressing mode when the corresponding <code class="docutils literal notranslate"><span class="pre">scList</span></code> entry is an
+<a class="reference internal" href="../simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#mjscene"><span class="std std-ref">MJScene</span></a>.  Instead of a plain list (which is applied to hub bodies
+only), you may pass a <code class="docutils literal notranslate"><span class="pre">dict</span></code> mapping body names to their element lists
+to target specific bodies:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># CSS on the hub body only (flat list -&gt; hub bodies):</span>
+<span class="n">cssList</span> <span class="o">=</span> <span class="p">[[</span><span class="n">css1</span><span class="p">,</span> <span class="n">css2</span><span class="p">]]</span>
+
+<span class="c1"># CSS on specific named bodies (dict):</span>
+<span class="n">cssList</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;hub&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">css1</span><span class="p">],</span> <span class="s2">&quot;panel_1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">css2</span><span class="p">]}]</span>
+</pre></div>
+</div>
+</p></li>
 </ul>
 </dd>
 <dt class="field-even">Keyword Arguments<span class="colon">:</span></dt>

@@ -300,6 +300,48 @@
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK6MJSpec12getBodyNamesEv">
+<span id="_CPPv3NK6MJSpec12getBodyNamesEv"></span><span id="_CPPv2NK6MJSpec12getBodyNamesEv"></span><span id="MJSpec::getBodyNamesC"></span><span class="target" id="class_m_j_spec_1a96b48dee89d884180e045efdfab5a29e"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getBodyNames</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK6MJSpec12getBodyNamesEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Retrieves the names of all bodies in the specification. </p>
+<p>This method does not trigger model recompilation, so it can be called before initialization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A vector of body names. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK6MJSpec17getBodyParentNameERKNSt6stringE">
+<span id="_CPPv3NK6MJSpec17getBodyParentNameERKNSt6stringE"></span><span id="_CPPv2NK6MJSpec17getBodyParentNameERKNSt6stringE"></span><span id="MJSpec::getBodyParentName__ssCRC"></span><span class="target" id="class_m_j_spec_1af1e5455a6d2d4f99fed3d8209a28112d"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getBodyParentName</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">bodyName</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK6MJSpec17getBodyParentNameERKNSt6stringE" title="Link to this definition"></a><br /></dt>
+<dd><p>Retrieves the parent body name of a given body. </p>
+<p>Uses the existing compiled model (without triggering recompilation) to look up the parent relationship. Returns the string <code class="docutils literal notranslate"><span class="pre">&quot;world&quot;</span></code> if the body’s direct parent is the worldbody. Throws <code class="docutils literal notranslate"><span class="pre">std::invalid_argument</span></code> if no body with the given name exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bodyName</strong> – The name of the body. </p>
+</dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">invalid_argument</span></span></span> – If the body does not exist. </p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parent body’s name, or <code class="docutils literal notranslate"><span class="pre">&quot;world&quot;</span></code> if the parent is the worldbody. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK6MJSpec12getGeomInfosEv">
+<span id="_CPPv3NK6MJSpec12getGeomInfosEv"></span><span id="_CPPv2NK6MJSpec12getGeomInfosEv"></span><span id="MJSpec::getGeomInfosC"></span><span class="target" id="class_m_j_spec_1ac1bce56037fc3d562f7e372219747118"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="MJGeomInfo.html#_CPPv410MJGeomInfo" title="MJGeomInfo"><span class="n"><span class="pre">MJGeomInfo</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getGeomInfos</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK6MJSpec12getGeomInfosEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Retrieves geometry information for all geoms in the model. </p>
+<p>Uses the existing compiled model (without triggering recompilation). Each entry describes a geom’s shape, size, position, orientation, and color, along with which body it belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A vector of <code class="docutils literal notranslate"><a class="reference internal" href="MJGeomInfo.html#struct_m_j_geom_info"><span class="std std-ref"><span class="pre">MJGeomInfo</span></span></a></code> structs. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N6MJSpec11hasActuatorERKNSt6stringE">
 <span id="_CPPv3N6MJSpec11hasActuatorERKNSt6stringE"></span><span id="_CPPv2N6MJSpec11hasActuatorERKNSt6stringE"></span><span id="MJSpec::hasActuator__ssCR"></span><span class="target" id="class_m_j_spec_1a59139d5cc41800696748d344b41f7365"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hasActuator</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6MJSpec11hasActuatorERKNSt6stringE" title="Link to this definition"></a><br /></dt>
 <dd><p>Checks if an actuator exists with the given name. </p>

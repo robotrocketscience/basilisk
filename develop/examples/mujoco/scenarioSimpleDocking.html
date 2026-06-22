@@ -75,6 +75,7 @@
 <li class="toctree-l4"><a class="reference internal" href="scenarioFormationFlyingWithDrag.html">Translation-only formation flying under differential drag</a></li>
 <li class="toctree-l4"><a class="reference internal" href="scenarioStochasticDrag.html">Satellite Drag with Stochastic (Random) Density using MuJoCo</a></li>
 <li class="toctree-l4"><a class="reference internal" href="scenarioThrArmControl.html">Spacecraft Control with Thruster Arms using MuJoCo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scenarioMJSceneVizard.html">Combining MuJoCo Scenes and a Spacecraft in Vizard</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#support-files">Support Files</a></li>
 </ul>
 </li>
@@ -157,9 +158,13 @@ recommended scenario(s) that they may have):</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">examples/mujoco/scenarioArmWithThrusters.py</span></code></p></li>
 </ol>
-<p>This scripts shows how one can simulate two independent spacecraft
+<p>This script shows how one can simulate two independent spacecraft
 docking and constraining their movement with respect to each other.
-This illustrates the use of MuJoCo <code class="docutils literal notranslate"><span class="pre">equality</span></code> in <a class="reference internal" href="../../Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#mjscene"><span class="std std-ref">MJScene</span></a>.</p>
+This illustrates the use of MuJoCo <code class="docutils literal notranslate"><span class="pre">equality</span></code> in <a class="reference internal" href="../../Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#mjscene"><span class="std std-ref">MJScene</span></a>.
+The single <a class="reference internal" href="../../Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#mjscene"><span class="std std-ref">MJScene</span></a> is
+sent to <a class="reference internal" href="../../Vizard/Vizard.html#vizard"><span class="std std-ref">Vizard</span></a> as two individual spacecraft, <code class="docutils literal notranslate"><span class="pre">hub_1</span></code>
+and <code class="docutils literal notranslate"><span class="pre">hub_2</span></code>. The system can also be visualized in <a class="reference internal" href="../../Vizard/Vizard.html#vizard"><span class="std std-ref">Vizard</span></a>
+through the <code class="docutils literal notranslate"><span class="pre">enableUnityVisualization</span></code> call.</p>
 <p>The multi-body system is defined in the XML file <code class="docutils literal notranslate"><span class="pre">sats_dock.xml</span></code>.
 The system defined in this XML file is simple, but it illustrates some
 of the tools MuJoCo offers for our simulation needs. First, this shows
@@ -177,16 +182,12 @@ are produced at this point to ensure the equality constraint is met.</p>
 <a class="reference external" href="https://mujoco.readthedocs.io/en/stable">https://mujoco.readthedocs.io/en/stable</a></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="scenarioSimpleDocking.run">
-<span class="sig-prename descclassname"><span class="pre">scenarioSimpleDocking.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">showPlots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scenarioSimpleDocking.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scenarioSimpleDocking.run" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">scenarioSimpleDocking.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">showPlots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scenarioSimpleDocking.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scenarioSimpleDocking.run" title="Link to this definition"></a></dt>
 <dd><p>Main function, see scenario description.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>showPlots</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, simulation results are plotted and show.
-Defaults to False.</p></li>
-<li><p><strong>visualize</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the <code class="docutils literal notranslate"><span class="pre">MJScene</span></code> visualization tool is
-run on the simulation results. Defaults to False.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>showPlots</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, simulation results are plotted and show.
+Defaults to False.</p>
 </dd>
 </dl>
 </dd></dl>

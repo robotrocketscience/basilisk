@@ -181,11 +181,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">Basilisk.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">SimulationBaseClass</span><span class="p">,</span> <span class="n">macros</span><span class="p">,</span> <span class="n">simIncludeGravBody</span><span class="p">,</span> <span class="n">vizSupport</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">Basilisk.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">unitTestSupport</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">Basilisk.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">vizInterface</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="k">pass</span>
-
 <span class="c1"># The path to the location of Basilisk</span>
 <span class="c1"># Used to get the location of supporting data.</span>
 <span class="n">fileName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
@@ -303,14 +298,11 @@
                                      <span class="n">scale</span><span class="o">=</span><span class="p">[</span><span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">])</span>
 
         <span class="c1"># over-ride the default to not read the SC states from scObjects, but set them directly</span>
-        <span class="c1"># to read from the dataFileToFiz output message</span>
-        <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="c1"># to read from the dataFileToViz output message</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scList</span><span class="p">)):</span>
-            <span class="n">scData</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">VizSpacecraftData</span><span class="p">()</span>
+            <span class="n">scData</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
             <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">scList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">ModelTag</span>
             <span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">dataModule</span><span class="o">.</span><span class="n">scStateOutMsgs</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-
-            <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">scData</span><span class="p">)</span>
 
     <span class="c1">#   initialize Simulation</span>
     <span class="n">scSim</span><span class="o">.</span><span class="n">InitializeSimulation</span><span class="p">()</span>

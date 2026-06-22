@@ -13,6 +13,7 @@ _GeneralModuleFiles
    MJBody
    MJEquality
    MJFwdKinematics
+   MJGeomInfo
    MJInterpolators
    MJJoint
    MJObject
@@ -24,7 +25,6 @@ _GeneralModuleFiles
    PIDController
    StatefulSysModel
    meanRevertingNoise
-   pythonUtils
    statefulNumbaModel
 .. toctree::
    :maxdepth: 1

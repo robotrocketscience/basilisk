@@ -271,6 +271,8 @@
 </li>
       <li><a href="Documentation/utilities/RigidBodyKinematics.html#RigidBodyKinematics.addMRP">addMRP() (in module RigidBodyKinematics)</a>
 </li>
+      <li><a href="examples/mujoco/scenarioMJSceneVizard.html#scenarioMJSceneVizard.addOrbitalGravity">addOrbitalGravity() (in module scenarioMJSceneVizard)</a>
+</li>
       <li><a href="Documentation/architecture/utilities/rigidBodyKinematics.html#_CPPv46addPRVPdPdPd">addPRV (C++ function)</a>
 </li>
       <li><a href="Documentation/utilities/RigidBodyKinematics.html#RigidBodyKinematics.addPRV">addPRV() (in module RigidBodyKinematics)</a>
@@ -458,10 +460,10 @@
 </li>
       <li><a href="Documentation/simulation/power/antennaPower/antennaPower.html#_CPPv4N12AntennaPower13basePowerNeedE">AntennaPower::basePowerNeed (C++ member)</a>
 </li>
-      <li><a href="Documentation/simulation/power/antennaPower/antennaPower.html#_CPPv4N12AntennaPower9bskLoggerE">AntennaPower::bskLogger (C++ member)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Documentation/simulation/power/antennaPower/antennaPower.html#_CPPv4N12AntennaPower9bskLoggerE">AntennaPower::bskLogger (C++ member)</a>
+</li>
       <li><a href="Documentation/simulation/power/antennaPower/antennaPower.html#_CPPv4N12AntennaPower18customReadMessagesEv">AntennaPower::customReadMessages (C++ function)</a>
 </li>
       <li><a href="Documentation/simulation/power/antennaPower/antennaPower.html#_CPPv4N12AntennaPower11customResetE8uint64_t">AntennaPower::customReset (C++ function)</a>
@@ -10329,6 +10331,8 @@
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJUtils.html#_CPPv4I0EN10MJBasilisk6detail17getSpecObjectNameENSt6stringEP1T">MJBasilisk::detail::getSpecObjectName (C++ function)</a>
 </li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJUtils.html#_CPPv4I0EN10MJBasilisk6detail11logAndThrowEvRKNSt6stringE">MJBasilisk::detail::logAndThrow (C++ function)</a>
+</li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJUtils.html#_CPPv4N10MJBasilisk6detail13mjDataDeleterE">MJBasilisk::detail::mjDataDeleter (C++ type)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJUtils.html#_CPPv4N10MJBasilisk6detail14mjModelDeleterE">MJBasilisk::detail::mjModelDeleter (C++ type)</a>
@@ -10437,6 +10441,10 @@
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv411MJFreeJoint">MJFreeJoint (C++ class)</a>
 </li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4NK11MJFreeJoint32getTranslationalPositionFromDataEPK6mjData">MJFreeJoint::getTranslationalPositionFromData (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4NK11MJFreeJoint32getTranslationalVelocityFromDataEPK6mjData">MJFreeJoint::getTranslationalVelocityFromData (C++ function)</a>
+</li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint7MJJointEP8mjsJointR6MJBody">MJFreeJoint::MJJoint (C++ function)</a>, <a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint7MJJointERK7MJJoint">[1]</a>, <a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint7MJJointERR7MJJoint">[2]</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint11setAttitudeERKN5Eigen4MRPdE">MJFreeJoint::setAttitude (C++ function)</a>
@@ -10444,6 +10452,10 @@
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint15setAttitudeRateERKN5Eigen8Vector3dE">MJFreeJoint::setAttitudeRate (C++ function)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint11setPositionERKN5Eigen8Vector3dE">MJFreeJoint::setPosition (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint30setTranslationalPositionInDataEP6mjDataRKN5Eigen8Vector3dE">MJFreeJoint::setTranslationalPositionInData (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint30setTranslationalVelocityInDataEP6mjDataRKN5Eigen8Vector3dE">MJFreeJoint::setTranslationalVelocityInData (C++ function)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv4N11MJFreeJoint11setVelocityERKN5Eigen8Vector3dE">MJFreeJoint::setVelocity (C++ function)</a>
 </li>
@@ -10456,6 +10468,20 @@
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJFwdKinematics.html#_CPPv4N15MJFwdKinematics5sceneE">MJFwdKinematics::scene (C++ member)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJFwdKinematics.html#_CPPv4N15MJFwdKinematics11UpdateStateE8uint64_t">MJFwdKinematics::UpdateState (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJGeomInfo.html#_CPPv410MJGeomInfo">MJGeomInfo (C++ struct)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJGeomInfo.html#_CPPv4N10MJGeomInfo8bodyNameE">MJGeomInfo::bodyName (C++ member)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJGeomInfo.html#_CPPv4N10MJGeomInfo3posE">MJGeomInfo::pos (C++ member)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJGeomInfo.html#_CPPv4N10MJGeomInfo4quatE">MJGeomInfo::quat (C++ member)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJGeomInfo.html#_CPPv4N10MJGeomInfo4rgbaE">MJGeomInfo::rgba (C++ member)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJGeomInfo.html#_CPPv4N10MJGeomInfo4sizeE">MJGeomInfo::size (C++ member)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJGeomInfo.html#_CPPv4N10MJGeomInfo4typeE">MJGeomInfo::type (C++ member)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJJoint.html#_CPPv47MJJoint">MJJoint (C++ class)</a>
 </li>
@@ -10641,6 +10667,8 @@
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene12extraEoMCallE">MJScene::extraEoMCall (C++ member)</a>
 </li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene17firstDynamicsCallE">MJScene::firstDynamicsCall (C++ member)</a>
+</li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene22forwardKinematicsStaleE">MJScene::forwardKinematicsStale (C++ member)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene8fromFileERKNSt6stringE">MJScene::fromFile (C++ function)</a>
@@ -10651,11 +10679,17 @@
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene7getBodyERKNSt6stringE">MJScene::getBody (C++ function)</a>
 </li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4NK7MJScene12getBodyNamesEv">MJScene::getBodyNames (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4NK7MJScene17getBodyParentNameERKNSt6stringE">MJScene::getBodyParentName (C++ function)</a>
+</li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene11getEqualityERKNSt6stringE">MJScene::getEquality (C++ function)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene16getForceActuatorERKNSt6stringE">MJScene::getForceActuator (C++ function)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene22getForceTorqueActuatorERKNSt6stringE">MJScene::getForceTorqueActuator (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4NK7MJScene12getGeomInfosEv">MJScene::getGeomInfos (C++ function)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#_CPPv4N7MJScene12getMassStateEv">MJScene::getMassState (C++ function)</a>
 </li>
@@ -10787,7 +10821,13 @@
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJSpec.html#_CPPv4N6MJSpec9getBodiesEv">MJSpec::getBodies (C++ function)</a>
 </li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJSpec.html#_CPPv4NK6MJSpec12getBodyNamesEv">MJSpec::getBodyNames (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJSpec.html#_CPPv4NK6MJSpec17getBodyParentNameERKNSt6stringE">MJSpec::getBodyParentName (C++ function)</a>
+</li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJSpec.html#_CPPv4N6MJSpec13getEqualitiesEv">MJSpec::getEqualities (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJSpec.html#_CPPv4NK6MJSpec12getGeomInfosEv">MJSpec::getGeomInfos (C++ function)</a>
 </li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJSpec.html#_CPPv4N6MJSpec13getMujocoDataEv">MJSpec::getMujocoData (C++ function)</a>
 </li>
@@ -10913,6 +10953,8 @@
 </li>
       <li><a href="Documentation/architecture/_GeneralModuleFiles/sys_model_task.html#_CPPv417ModelPriorityPair">ModelPriorityPair (C++ struct)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Documentation/architecture/_GeneralModuleFiles/sys_model_task.html#_CPPv4N17ModelPriorityPair20CurrentModelPriorityE">ModelPriorityPair::CurrentModelPriority (C++ member)</a>
 </li>
       <li><a href="Documentation/architecture/_GeneralModuleFiles/sys_model_task.html#_CPPv4N17ModelPriorityPair8ModelPtrE">ModelPriorityPair::ModelPtr (C++ member)</a>
@@ -11028,8 +11070,6 @@
         <li><a href="Documentation/utilities/pyswice_ck_utilities.html#module-pyswice_ck_utilities">pyswice_ck_utilities</a>
 </li>
         <li><a href="Documentation/utilities/pyswice_spk_utilities.html#module-pyswice_spk_utilities">pyswice_spk_utilities</a>
-</li>
-        <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/pythonUtils.html#module-pythonUtils">pythonUtils</a>
 </li>
         <li><a href="Documentation/utilities/pythonVariableLogger.html#module-pythonVariableLogger">pythonVariableLogger</a>
 </li>
@@ -11254,6 +11294,8 @@
         <li><a href="examples/scenarioMagneticFieldCenteredDipole.html#module-scenarioMagneticFieldCenteredDipole">scenarioMagneticFieldCenteredDipole</a>
 </li>
         <li><a href="examples/scenarioMagneticFieldWMM.html#module-scenarioMagneticFieldWMM">scenarioMagneticFieldWMM</a>
+</li>
+        <li><a href="examples/mujoco/scenarioMJSceneVizard.html#module-scenarioMJSceneVizard">scenarioMJSceneVizard</a>
 </li>
         <li><a href="examples/scenarioMomentumDumping.html#module-scenarioMomentumDumping">scenarioMomentumDumping</a>
 </li>
@@ -11911,8 +11953,6 @@
 </li>
         <li><a href="Documentation/fswAlgorithms/attGuidance/velocityPoint/_UnitTest/test_velocityPoint.html#module-test_velocityPoint">test_velocityPoint</a>
 </li>
-        <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/_UnitTest/test_vis.html#module-test_vis">test_vis</a>
-</li>
         <li><a href="Documentation/simulation/vizard/vizInterface/_UnitTest/test_vizInterface.html#module-test_vizInterface">test_vizInterface</a>
 </li>
         <li><a href="Documentation/fswAlgorithms/effectorInterfaces/vscmgGimbalRateServo/_UnitTest/test_vscmgGimbalRateServo.html#module-test_vscmgGimbalRateServo">test_vscmgGimbalRateServo</a>
@@ -11938,8 +11978,6 @@
         <li><a href="Documentation/utilities/vizSupport.html#module-vizSupport">vizSupport</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Documentation/utilities/makeDraftModule.html#makeDraftModule.moduleGenerator">moduleGenerator (class in makeDraftModule)</a>
 </li>
       <li><a href="Documentation/architecture/utilities/moduleIdGenerator/moduleIdGenerator.html#_CPPv417ModuleIdGenerator">ModuleIdGenerator (C++ class)</a>
@@ -13440,6 +13478,8 @@
       <ul>
         <li><a href="examples/mujoco/scenarioDeployPanels.html#scenarioDeployPanels.PIDController">(class in scenarioDeployPanels)</a>
 </li>
+        <li><a href="examples/mujoco/scenarioMJSceneVizard.html#scenarioMJSceneVizard.PIDController">(class in scenarioMJSceneVizard)</a>
+</li>
       </ul></li>
       <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/PIDController.html#_CPPv4N13PIDController9bskLoggerE">PIDController::bskLogger (C++ member)</a>
 </li>
@@ -14389,12 +14429,12 @@
 </li>
       <li><a href="Documentation/simulation/vizard/_GeneralModuleFiles/vizStructures.html#_CPPv49PointLine">PointLine (C++ struct)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Documentation/simulation/vizard/_GeneralModuleFiles/vizStructures.html#_CPPv4N9PointLine12fromBodyNameE">PointLine::fromBodyName (C++ member)</a>
 </li>
       <li><a href="Documentation/simulation/vizard/_GeneralModuleFiles/vizStructures.html#_CPPv4N9PointLine9lineColorE">PointLine::lineColor (C++ member)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Documentation/simulation/vizard/_GeneralModuleFiles/vizStructures.html#_CPPv4N9PointLine10toBodyNameE">PointLine::toBodyName (C++ member)</a>
 </li>
       <li><a href="Documentation/simulation/dynamics/_GeneralModuleFiles/pointMassGravityModel.html#_CPPv421PointMassGravityModel">PointMassGravityModel (C++ class)</a>
@@ -15377,13 +15417,6 @@
 </li>
       <li><a href="examples/scenarioAttitudePointingPy.html#scenarioAttitudePointingPy.PythonMRPPD">PythonMRPPD (class in scenarioAttitudePointingPy)</a>
 </li>
-      <li>
-    pythonUtils
-
-      <ul>
-        <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/pythonUtils.html#module-pythonUtils">module</a>
-</li>
-      </ul></li>
       <li>
     pythonVariableLogger
 
@@ -17730,6 +17763,13 @@
 
       <ul>
         <li><a href="examples/scenarioMagneticFieldWMM.html#module-scenarioMagneticFieldWMM">module</a>
+</li>
+      </ul></li>
+      <li>
+    scenarioMJSceneVizard
+
+      <ul>
+        <li><a href="examples/mujoco/scenarioMJSceneVizard.html#module-scenarioMJSceneVizard">module</a>
 </li>
       </ul></li>
       <li>
@@ -20285,10 +20325,10 @@
 </li>
       <li><a href="Documentation/simulation/environment/spacecraftChargingEquilibrium/spacecraftChargingEquilibrium.html#_CPPv4N29SpacecraftChargingEquilibrium20photoelectricCurrentEdd">SpacecraftChargingEquilibrium::photoelectricCurrent (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Documentation/simulation/environment/spacecraftChargingEquilibrium/spacecraftChargingEquilibrium.html#_CPPv4N29SpacecraftChargingEquilibrium17photoelectronFluxE">SpacecraftChargingEquilibrium::photoelectronFlux (C++ member)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Documentation/simulation/environment/spacecraftChargingEquilibrium/spacecraftChargingEquilibrium.html#_CPPv4N29SpacecraftChargingEquilibrium24photoelectronTemperatureE">SpacecraftChargingEquilibrium::photoelectronTemperature (C++ member)</a>
 </li>
       <li><a href="Documentation/simulation/environment/spacecraftChargingEquilibrium/spacecraftChargingEquilibrium.html#_CPPv4N29SpacecraftChargingEquilibrium15plasmaFluxInMsgE">SpacecraftChargingEquilibrium::plasmaFluxInMsg (C++ member)</a>
@@ -22186,6 +22226,14 @@
 </li>
       <li><a href="Documentation/fswAlgorithms/attDetermination/InertialUKF/_UnitTest/test_inertialKF.html#test_inertialKF.stateUpdateRWInertialAttitude">stateUpdateRWInertialAttitude() (in module test_inertialKF)</a>
 </li>
+      <li><a href="Documentation/simulation/dynamics/_GeneralModuleFiles/svIntegratorAdaptiveRungeKutta.html#_CPPv426StateVecAdaptiveIntegrator">StateVecAdaptiveIntegrator (C++ class)</a>
+</li>
+      <li><a href="Documentation/simulation/dynamics/_GeneralModuleFiles/svIntegratorAdaptiveRungeKutta.html#_CPPv4N26StateVecAdaptiveIntegrator20setAbsoluteToleranceENSt6stringEd">StateVecAdaptiveIntegrator::setAbsoluteTolerance (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/dynamics/_GeneralModuleFiles/svIntegratorAdaptiveRungeKutta.html#_CPPv4N26StateVecAdaptiveIntegrator20setRelativeToleranceENSt6stringEd">StateVecAdaptiveIntegrator::setRelativeTolerance (C++ function)</a>
+</li>
+      <li><a href="Documentation/simulation/dynamics/_GeneralModuleFiles/svIntegratorAdaptiveRungeKutta.html#_CPPv4N26StateVecAdaptiveIntegratorD0Ev">StateVecAdaptiveIntegrator::~StateVecAdaptiveIntegrator (C++ function)</a>
+</li>
       <li><a href="Documentation/simulation/dynamics/_GeneralModuleFiles/stateVecIntegrator.html#_CPPv418StateVecIntegrator">StateVecIntegrator (C++ class)</a>
 </li>
       <li><a href="Documentation/simulation/dynamics/_GeneralModuleFiles/stateVecIntegrator.html#_CPPv4N18StateVecIntegrator7dynPtrsE">StateVecIntegrator::dynPtrs (C++ member)</a>
@@ -23455,6 +23503,10 @@
       <li><a href="Documentation/architecture/messaging/_UnitTest/test_msgDtype.html#test_msgDtype.test_accDataDtypeNumpyToPython">test_accDataDtypeNumpyToPython() (in module test_msgDtype)</a>
 </li>
       <li><a href="Documentation/architecture/messaging/_UnitTest/test_msgDtype.html#test_msgDtype.test_accDataDtypePythonToNumpy">test_accDataDtypePythonToNumpy() (in module test_msgDtype)</a>
+</li>
+      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/_UnitTest/test_objects.html#test_objects.test_adaptive_free_joint_translation_tolerances_are_stage_independent">test_adaptive_free_joint_translation_tolerances_are_stage_independent() (in module test_objects)</a>
+</li>
+      <li><a href="Documentation/simulation/dynamics/Integrators/_UnitTest/test_Integrators.html#test_Integrators.test_adaptive_integrator_state_specific_tolerances_insert">test_adaptive_integrator_state_specific_tolerances_insert() (in module test_Integrators)</a>
 </li>
       <li>
     test_albedo
@@ -25571,10 +25623,10 @@
 </li>
       <li><a href="Documentation/simulation/dynamics/reactionWheels/_UnitTest/test_reactionWheelStateEffector_integrated.html#test_reactionWheelStateEffector_integrated.test_setJs">test_setJs() (in module test_reactionWheelStateEffector_integrated)</a>
 </li>
-      <li><a href="Documentation/simulation/environment/eclipse/_UnitTest/test_eclipse.html#test_eclipse.test_shadow_vs_illumination_alias_and_deprecation_behavior">test_shadow_vs_illumination_alias_and_deprecation_behavior() (in module test_eclipse)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Documentation/simulation/environment/eclipse/_UnitTest/test_eclipse.html#test_eclipse.test_shadow_vs_illumination_alias_and_deprecation_behavior">test_shadow_vs_illumination_alias_and_deprecation_behavior() (in module test_eclipse)</a>
+</li>
       <li><a href="Documentation/fswAlgorithms/sensorInterfaces/simpleInstrumentController/_UnitTest/test_simpleInstrumentController.html#test_simpleInstrumentController.test_simple_instrument_controller">test_simple_instrument_controller() (in module test_simpleInstrumentController)</a>
 </li>
       <li>
@@ -26388,13 +26440,6 @@
       </ul></li>
       <li><a href="Documentation/fswAlgorithms/attGuidance/velocityPoint/_UnitTest/test_velocityPoint.html#test_velocityPoint.test_velocityPoint">test_velocityPoint() (in module test_velocityPoint)</a>
 </li>
-      <li>
-    test_vis
-
-      <ul>
-        <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/_UnitTest/test_vis.html#module-test_vis">module</a>
-</li>
-      </ul></li>
       <li><a href="Documentation/simulation/navigation/pinholeCamera/_UnitTest/test_unitPinholeCamera.html#test_unitPinholeCamera.test_visibility">test_visibility() (in module test_unitPinholeCamera)</a>
 </li>
       <li>
@@ -27177,6 +27222,14 @@
 </li>
       <li><a href="Documentation/simulation/dynamics/Thrusters/thrusterStateEffector/thrusterStateEffector.html#_CPPv4N21ThrusterStateEffectorD0Ev">ThrusterStateEffector::~ThrusterStateEffector (C++ function)</a>
 </li>
+      <li><a href="examples/mujoco/scenarioArmWithThrusters.html#scenarioArmWithThrusters.ThrusterVizMessageWriter">ThrusterVizMessageWriter (class in scenarioArmWithThrusters)</a>
+
+      <ul>
+        <li><a href="examples/mujoco/scenarioAsteroidLanding.html#scenarioAsteroidLanding.ThrusterVizMessageWriter">(class in scenarioAsteroidLanding)</a>
+</li>
+        <li><a href="examples/mujoco/scenarioUnbalancedThrusters.html#scenarioUnbalancedThrusters.ThrusterVizMessageWriter">(class in scenarioUnbalancedThrusters)</a>
+</li>
+      </ul></li>
       <li><a href="Documentation/fswAlgorithms/effectorInterfaces/_GeneralModuleFiles/thrustGroupData.html#_CPPv415ThrustGroupData">ThrustGroupData (C++ struct)</a>
 </li>
       <li><a href="Documentation/fswAlgorithms/effectorInterfaces/_GeneralModuleFiles/thrustGroupData.html#_CPPv4N15ThrustGroupData11cmdRequestsE">ThrustGroupData::cmdRequests (C++ member)</a>
@@ -27951,11 +28004,7 @@
 </li>
       <li><a href="Documentation/simulation/environment/magneticFieldWMM/GeomagnetismHeader.html#c.VERSIONDATE_LARGE">VERSIONDATE_LARGE (C macro)</a>
 </li>
-      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/_UnitTest/test_vis.html#test_vis.vis">vis() (in module test_vis)</a>
-</li>
       <li><a href="Documentation/architecture/utilities/linearAlgebra.html#_CPPv48vIsEqualPd6size_tPdd">vIsEqual (C++ function)</a>
-</li>
-      <li><a href="Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/pythonUtils.html#pythonUtils.visualize">visualize() (in module pythonUtils)</a>
 </li>
       <li><a href="Documentation/architecture/utilities/linearAlgebra.html#_CPPv47vIsZeroPd6size_td">vIsZero (C++ function)</a>
 </li>
@@ -28304,10 +28353,10 @@
 </li>
       <li><a href="Documentation/simulation/vizard/_GeneralModuleFiles/vizStructures.html#_CPPv4N17VizSpacecraftData13ellipsoidListE">VizSpacecraftData::ellipsoidList (C++ member)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Documentation/simulation/vizard/_GeneralModuleFiles/vizStructures.html#_CPPv4N17VizSpacecraftData17genericSensorListE">VizSpacecraftData::genericSensorList (C++ member)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Documentation/simulation/vizard/_GeneralModuleFiles/vizStructures.html#_CPPv4N17VizSpacecraftData18genericStorageListE">VizSpacecraftData::genericStorageList (C++ member)</a>
 </li>
       <li><a href="Documentation/simulation/vizard/_GeneralModuleFiles/vizStructures.html#_CPPv4N17VizSpacecraftData19groundTrackBodyNameE">VizSpacecraftData::groundTrackBodyName (C++ member)</a>

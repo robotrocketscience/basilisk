@@ -702,14 +702,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">simulationFinished</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bskLogger</span> <span class="o">=</span> <span class="n">bskLogging</span><span class="o">.</span><span class="n">BSKLogger</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">showProgressBar</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progressBarTargetUpdates</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># [-]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progressBarUpdateInterval</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allModules</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SimBaseClass.SetProgressBar">
 <a class="viewcode-back" href="../Documentation/utilities/SimulationBaseClass.html#SimulationBaseClass.SimBaseClass.SetProgressBar">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">SetProgressBar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">SetProgressBar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">targetUpdates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">updateInterval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Shows a dynamic progress in the terminal while the simulation is executing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (bool): Flag indicating if progress should be displayed.</span>
+<span class="sd">            targetUpdates (int, optional): Approximate number of progress updates</span>
+<span class="sd">                to produce over the simulation run.</span>
+<span class="sd">            updateInterval (int, optional): Fixed progress update interval in</span>
+<span class="sd">                nanoseconds.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">targetUpdates</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">updateInterval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only specify targetUpdates or updateInterval, not both.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">targetUpdates</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">targetUpdates</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;targetUpdates must be positive.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progressBarTargetUpdates</span> <span class="o">=</span> <span class="n">targetUpdates</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progressBarUpdateInterval</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">updateInterval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">updateInterval</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;updateInterval must be positive.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progressBarUpdateInterval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">updateInterval</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">showProgressBar</span> <span class="o">=</span> <span class="n">value</span></div>
 
 
@@ -2054,6 +2074,20 @@
                 <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">NextTaskTime</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">StopTime</span>
             <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_progressBarUpdateInterval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">showProgressBar</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">StopTime</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">CurrentNanos</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progressBarUpdateInterval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">progressBarUpdateInterval</span>
+        <span class="n">remainingTime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">StopTime</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">CurrentNanos</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">remainingTime</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">progressBarTargetUpdates</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_limitStopTimeForProgress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nextStopTime</span><span class="p">,</span> <span class="n">nextProgressUpdateTime</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">nextProgressUpdateTime</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">nextStopTime</span>
+        <span class="n">progressStopTime</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nextProgressUpdateTime</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">NextTaskTime</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">nextStopTime</span><span class="p">,</span> <span class="n">progressStopTime</span><span class="p">)</span>
+
 <div class="viewcode-block" id="SimBaseClass.ExecuteSimulation">
 <a class="viewcode-back" href="../Documentation/utilities/SimulationBaseClass.html#SimulationBaseClass.SimBaseClass.ExecuteSimulation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">ExecuteSimulation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2062,6 +2096,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">progressBar</span> <span class="o">=</span> <span class="n">SimulationProgressBar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">StopTime</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">showProgressBar</span><span class="p">)</span>
+        <span class="n">progressUpdateInterval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progressBarUpdateInterval</span><span class="p">()</span>
+        <span class="n">nextProgressUpdateTime</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">progressUpdateInterval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nextProgressUpdateTime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">CurrentNanos</span> <span class="o">+</span> <span class="n">progressUpdateInterval</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">CheckStopCondition</span><span class="p">():</span>
             <span class="c1"># Check events</span>
             <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">activeEvents</span><span class="p">():</span>
@@ -2090,10 +2128,17 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">StopCondition</span> <span class="o">==</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span>
                 <span class="n">nextStopTime</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">nextStopTime</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">NextTaskTime</span><span class="p">)</span>
 
+            <span class="n">nextStopTime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limitStopTimeForProgress</span><span class="p">(</span>
+                <span class="n">nextStopTime</span><span class="p">,</span> <span class="n">nextProgressUpdateTime</span>
+            <span class="p">)</span>
+
             <span class="c1"># Execute the sim</span>
             <span class="n">nextPriority</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">StepUntilStop</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">nextStopTime</span><span class="p">),</span> <span class="n">nextPriority</span><span class="p">)</span>
             <span class="n">progressBar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">NextTaskTime</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nextProgressUpdateTime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">while</span> <span class="n">nextProgressUpdateTime</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TotalSim</span><span class="o">.</span><span class="n">NextTaskTime</span><span class="p">:</span>
+                    <span class="n">nextProgressUpdateTime</span> <span class="o">+=</span> <span class="n">progressUpdateInterval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">terminate</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">progressBar</span><span class="o">.</span><span class="n">markComplete</span><span class="p">()</span>
         <span class="n">progressBar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>

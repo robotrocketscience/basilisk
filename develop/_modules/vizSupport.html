@@ -141,6 +141,13 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="n">vizFound</span> <span class="o">=</span> <span class="kc">False</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">Basilisk.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">mujoco</span>
+
+    <span class="n">mujocoFound</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">mujocoFound</span> <span class="o">=</span> <span class="kc">False</span>
+
 <span class="n">pauseFlag</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">endFlag</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -662,6 +669,145 @@
     <span class="k">return</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_getMJSceneGeomVizInfos</span><span class="p">(</span><span class="n">scene</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return Vizard primitive data grouped by MuJoCo body name.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">Basilisk.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">RigidBodyKinematics</span> <span class="k">as</span> <span class="n">RBK</span>
+
+    <span class="c1"># MuJoCo geom type constants (from mjtGeom enum) - only types with Vizard primitives.</span>
+    <span class="n">_MJGEOM_SPHERE</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">_MJGEOM_CAPSULE</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">_MJGEOM_ELLIPSOID</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">_MJGEOM_CYLINDER</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">_MJGEOM_BOX</span> <span class="o">=</span> <span class="mi">6</span>
+
+    <span class="c1"># Map MuJoCo geom types to Vizard primitive model paths</span>
+    <span class="n">_GEOM_TYPE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">_MJGEOM_BOX</span><span class="p">:</span> <span class="s2">&quot;CUBE&quot;</span><span class="p">,</span>
+        <span class="n">_MJGEOM_SPHERE</span><span class="p">:</span> <span class="s2">&quot;SPHERE&quot;</span><span class="p">,</span>
+        <span class="n">_MJGEOM_CYLINDER</span><span class="p">:</span> <span class="s2">&quot;CYLINDER&quot;</span><span class="p">,</span>
+        <span class="n">_MJGEOM_CAPSULE</span><span class="p">:</span> <span class="s2">&quot;CYLINDER&quot;</span><span class="p">,</span>
+        <span class="n">_MJGEOM_ELLIPSOID</span><span class="p">:</span> <span class="s2">&quot;SPHERE&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">geomToVizInfo</span><span class="p">(</span><span class="n">geom</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return Vizard primitive data for one supported MuJoCo geom.&quot;&quot;&quot;</span>
+        <span class="n">modelPath</span> <span class="o">=</span> <span class="n">_GEOM_TYPE_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">modelPath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Convert SWIG vector members to plain Python lists so indexing works</span>
+        <span class="c1"># regardless of how the __getitem__ overload resolves across SWIG versions.</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">pos_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        <span class="n">quat_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">quat</span><span class="p">)</span>
+        <span class="n">rgba_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">rgba</span><span class="p">)</span>
+
+        <span class="c1"># Compute scale from MuJoCo size.</span>
+        <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">_MJGEOM_BOX</span><span class="p">:</span>
+            <span class="c1"># MuJoCo size = half-extents, Vizard CUBE default = 1x1x1.</span>
+            <span class="n">customScale</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+            <span class="n">multiShapeDimensions</span> <span class="o">=</span> <span class="n">customScale</span>
+        <span class="k">elif</span> <span class="n">geom</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">_MJGEOM_SPHERE</span><span class="p">:</span>
+            <span class="c1"># MuJoCo size[0] = radius, Vizard SPHERE default diameter = 1.</span>
+            <span class="n">customScale</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">multiShapeDimensions</span> <span class="o">=</span> <span class="n">customScale</span>
+        <span class="k">elif</span> <span class="n">geom</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">_MJGEOM_CYLINDER</span><span class="p">:</span>
+            <span class="c1"># MuJoCo size[0] = radius, size[1] = half-height.</span>
+            <span class="c1"># Vizard custom CYLINDER uses z for half-height.</span>
+            <span class="n">customScale</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="c1"># Vizard MultiShape CYLINDER uses z for half-height.</span>
+            <span class="n">multiShapeDimensions</span> <span class="o">=</span> <span class="n">customScale</span>
+        <span class="k">elif</span> <span class="n">geom</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">_MJGEOM_CAPSULE</span><span class="p">:</span>
+            <span class="c1"># Approximate as cylinder.</span>
+            <span class="n">customScale</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">multiShapeDimensions</span> <span class="o">=</span> <span class="n">customScale</span>
+        <span class="k">elif</span> <span class="n">geom</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">_MJGEOM_ELLIPSOID</span><span class="p">:</span>
+            <span class="c1"># MuJoCo size = semi-axes.</span>
+            <span class="n">customScale</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+            <span class="n">multiShapeDimensions</span> <span class="o">=</span> <span class="n">customScale</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">customScale</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+            <span class="n">multiShapeDimensions</span> <span class="o">=</span> <span class="n">customScale</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;modelPath&quot;</span><span class="p">:</span> <span class="n">modelPath</span><span class="p">,</span>
+            <span class="s2">&quot;customScale&quot;</span><span class="p">:</span> <span class="n">customScale</span><span class="p">,</span>
+            <span class="s2">&quot;multiShapeDimensions&quot;</span><span class="p">:</span> <span class="n">multiShapeDimensions</span><span class="p">,</span>
+            <span class="s2">&quot;offset&quot;</span><span class="p">:</span> <span class="n">pos_list</span><span class="p">,</span>
+            <span class="s2">&quot;customRotation&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">RBK</span><span class="o">.</span><span class="n">EP2Euler321</span><span class="p">(</span><span class="n">quat_list</span><span class="p">)),</span>
+            <span class="s2">&quot;multiShapeRotation&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">RBK</span><span class="o">.</span><span class="n">EP2MRP</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">quat_list</span><span class="p">))),</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">rgba_list</span><span class="p">],</span>
+        <span class="p">}</span>
+
+    <span class="n">bodyGeomVizInfos</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">geomInfos</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">getGeomInfos</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">geomIndex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">geomInfos</span><span class="p">)):</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">geomInfos</span><span class="p">[</span><span class="n">geomIndex</span><span class="p">]</span>
+        <span class="n">vizInfo</span> <span class="o">=</span> <span class="n">geomToVizInfo</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vizInfo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bodyGeomVizInfos</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">bodyName</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vizInfo</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bodyGeomVizInfos</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_makeMJSceneMultiShape</span><span class="p">(</span><span class="n">vizInfo</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create one Vizard MultiShape primitive from geom visual data.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">mjSceneMultiShapeList</span>
+    <span class="n">multiShape</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">MultiShape</span><span class="p">()</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">isOn</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">vizInfo</span><span class="p">[</span><span class="s2">&quot;offset&quot;</span><span class="p">]</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">currentValue</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># [-]</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># [-]</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">positiveColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">vizInfo</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">])</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">negativeColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">vizInfo</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">])</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">vizInfo</span><span class="p">[</span><span class="s2">&quot;modelPath&quot;</span><span class="p">]</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="n">vizInfo</span><span class="p">[</span><span class="s2">&quot;multiShapeDimensions&quot;</span><span class="p">]</span>
+    <span class="n">multiShape</span><span class="o">.</span><span class="n">rotation</span> <span class="o">=</span> <span class="n">vizInfo</span><span class="p">[</span><span class="s2">&quot;multiShapeRotation&quot;</span><span class="p">]</span>
+    <span class="n">mjSceneMultiShapeList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">multiShape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">multiShape</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_appendMJSceneMultiShapes</span><span class="p">(</span><span class="n">scData</span><span class="p">,</span> <span class="n">vizInfos</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attach additional MuJoCo geoms to a Vizard spacecraft entry.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vizInfos</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">msmInfo</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">scData</span><span class="p">,</span> <span class="s2">&quot;msmInfo&quot;</span><span class="p">,</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">MultiShapeInfo</span><span class="p">())</span>
+    <span class="n">msmList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">msmInfo</span><span class="p">,</span> <span class="s2">&quot;msmList&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="n">msmList</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_makeMJSceneMultiShape</span><span class="p">(</span><span class="n">vizInfo</span><span class="p">)</span> <span class="k">for</span> <span class="n">vizInfo</span> <span class="ow">in</span> <span class="n">vizInfos</span><span class="p">)</span>
+    <span class="n">msmInfo</span><span class="o">.</span><span class="n">msmList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">MultiShapeVector</span><span class="p">(</span><span class="n">msmList</span><span class="p">)</span>
+    <span class="n">scData</span><span class="o">.</span><span class="n">msmInfo</span> <span class="o">=</span> <span class="n">msmInfo</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_createCustomModelsFromMJScene</span><span class="p">(</span><span class="n">viz</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">bodyGeomVizInfos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Auto-create Vizard custom models from MuJoCo geom data.</span>
+
+<span class="sd">    Maps MuJoCo geom types to Vizard primitive shapes and creates custom models</span>
+<span class="sd">    with the correct size, position, orientation, and color.  If a MuJoCo body</span>
+<span class="sd">    has multiple geoms, only the first supported geom is used as the replacement</span>
+<span class="sd">    model.  The caller attaches the remaining geoms as MultiShape primitives</span>
+<span class="sd">    before each spacecraft entry is pushed into the Vizard spacecraft vector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">bodyGeomVizInfos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bodyGeomVizInfos</span> <span class="o">=</span> <span class="n">_getMJSceneGeomVizInfos</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">bodyName</span><span class="p">,</span> <span class="n">vizInfos</span> <span class="ow">in</span> <span class="n">bodyGeomVizInfos</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">vizInfos</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">baseVizInfo</span> <span class="o">=</span> <span class="n">vizInfos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">createCustomModel</span><span class="p">(</span>
+            <span class="n">viz</span><span class="p">,</span>
+            <span class="n">modelPath</span><span class="o">=</span><span class="n">baseVizInfo</span><span class="p">[</span><span class="s2">&quot;modelPath&quot;</span><span class="p">],</span>
+            <span class="n">simBodiesToModify</span><span class="o">=</span><span class="p">[</span><span class="n">bodyName</span><span class="p">],</span>
+            <span class="n">scale</span><span class="o">=</span><span class="n">baseVizInfo</span><span class="p">[</span><span class="s2">&quot;customScale&quot;</span><span class="p">],</span>
+            <span class="n">offset</span><span class="o">=</span><span class="n">baseVizInfo</span><span class="p">[</span><span class="s2">&quot;offset&quot;</span><span class="p">],</span>
+            <span class="n">rotation</span><span class="o">=</span><span class="n">baseVizInfo</span><span class="p">[</span><span class="s2">&quot;customRotation&quot;</span><span class="p">],</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">baseVizInfo</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+
+<span class="n">mjSceneMultiShapeList</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">customModelList</span> <span class="o">=</span> <span class="p">[]</span>
 
 
@@ -1212,6 +1358,12 @@
         <span class="n">current_depth</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="c1"># Skip over Nones when checking shapes at a given level</span>
         <span class="n">level</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">level</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># A dict at this level is a valid terminal element (e.g. {&quot;bodyName&quot;: [sensors]}</span>
+        <span class="c1"># for per-body addressing in MJScene).  Count it as one more depth level so</span>
+        <span class="c1"># the outer list is not spuriously wrapped.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">current_depth</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">break</span>
 
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">current_depth</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
         <span class="nb">input</span> <span class="o">=</span> <span class="p">[</span><span class="nb">input</span><span class="p">]</span>
@@ -1220,6 +1372,404 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;List length should be </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">, not </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="nb">input</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolveBodyVisual</span><span class="p">(</span><span class="n">visual_entry</span><span class="p">,</span> <span class="n">body_name</span><span class="p">,</span> <span class="n">is_hub</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the visual element list for one body within an MJScene.</span>
+
+<span class="sd">    *visual_entry* is the value at ``someList[c]`` when the corresponding</span>
+<span class="sd">    entry in ``scList`` is an :ref:`MJScene`.  It may be:</span>
+
+<span class="sd">    * ``None`` - no visuals for any body in this scene.</span>
+<span class="sd">    * A ``dict`` mapping body names to their visual-element lists - used to</span>
+<span class="sd">      target specific bodies (hub *or* child).</span>
+<span class="sd">    * Any other value (e.g. a plain list) - applied to hub bodies only;</span>
+<span class="sd">      child bodies receive ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">visual_entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">visual_entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">visual_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">body_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">visual_entry</span> <span class="k">if</span> <span class="n">is_hub</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_registerVizardSpacecraftName</span><span class="p">(</span><span class="n">spacecraftName</span><span class="p">,</span> <span class="n">usedSpacecraftNames</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Record one emitted Vizard spacecraft name and reject duplicates.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">usedSpacecraftNames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">spacecraftName</span> <span class="ow">in</span> <span class="n">usedSpacecraftNames</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Vizard spacecraft name &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">spacecraftName</span><span class="si">}</span><span class="s2">&#39; is used more than once. &quot;</span>
+            <span class="s2">&quot;Use unique Spacecraft.ModelTag values, MJScene body names, and &quot;</span>
+            <span class="s2">&quot;tuple names in scList.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">usedSpacecraftNames</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">spacecraftName</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_applyVisuals</span><span class="p">(</span>
+    <span class="n">scData</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">cssList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">genericSensorList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ellipsoidList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">lightList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">genericStorageList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transceiverList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">spriteList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">modelDictionaryKeyList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">logoTextureList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">oscOrbitColorList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">trueOrbitColorList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">trueOrbitColorInMsgList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">groundTrackColorList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">groundTrackBodyNameList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">msmInfoList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attach pre-resolved visual element lists directly to a VizSpacecraftData.</span>
+
+<span class="sd">    Unlike :func:`_handleSubComponents`, the parameters here are the already-</span>
+<span class="sd">    resolved lists for a *single* body (not indexed by spacecraft position).</span>
+<span class="sd">    Reaction-wheel and thruster effectors are omitted because those are</span>
+<span class="sd">    modelled as MuJoCo joints / actuators, not Basilisk effector objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cssList</span><span class="p">:</span>
+        <span class="n">cssDeviceList</span> <span class="o">=</span> <span class="p">[</span><span class="n">css</span><span class="o">.</span><span class="n">cssConfigLogOutMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">()</span> <span class="k">for</span> <span class="n">css</span> <span class="ow">in</span> <span class="n">cssList</span><span class="p">]</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">cssInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">CSSConfigLogMsgInMsgsVector</span><span class="p">(</span><span class="n">cssDeviceList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">genericSensorList</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">genericSensorList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericSensorVector</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">genericSensorList</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">ellipsoidList</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">ellipsoidList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">EllipsoidVector</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">ellipsoidList</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">lightList</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">lightList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">LightVector</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lightList</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">genericStorageList</span><span class="p">:</span>
+        <span class="n">gsdList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">gsd</span> <span class="ow">in</span> <span class="n">genericStorageList</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">color</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">color</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="s2">&quot;ERROR: vizSupport: generic storage &quot;</span>
+                        <span class="o">+</span> <span class="n">gsd</span><span class="o">.</span><span class="n">label</span>
+                        <span class="o">+</span> <span class="s2">&quot; threshold list does not have the correct dimension.  &quot;</span>
+                        <span class="s2">&quot;It should be 1 smaller than the list of colors.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="s2">&quot;ERROR: vizSupport: generic storage &quot;</span>
+                        <span class="o">+</span> <span class="n">gsd</span><span class="o">.</span><span class="n">label</span>
+                        <span class="o">+</span> <span class="s2">&quot; threshold list is set, but no multiple of colors are provided.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">gsdList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gsd</span><span class="p">)</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">genericStorageList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericStorageVector</span><span class="p">(</span><span class="n">gsdList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">transceiverList</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">transceiverList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">TransceiverVector</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">transceiverList</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">spriteList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftSprite</span> <span class="o">=</span> <span class="n">spriteList</span>
+
+    <span class="k">if</span> <span class="n">modelDictionaryKeyList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">modelDictionaryKey</span> <span class="o">=</span> <span class="n">modelDictionaryKeyList</span>
+
+    <span class="k">if</span> <span class="n">logoTextureList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">logoTexture</span> <span class="o">=</span> <span class="n">logoTextureList</span>
+
+    <span class="k">if</span> <span class="n">oscOrbitColorList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">oscOrbitLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">oscOrbitColorList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">trueOrbitColorList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">trueTrajectoryLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">trueOrbitColorList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">trueOrbitColorInMsgList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">trueTrajectoryLineColorInMsg</span> <span class="o">=</span> <span class="n">trueOrbitColorInMsgList</span>
+
+    <span class="k">if</span> <span class="n">groundTrackColorList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">groundTrackLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">groundTrackColorList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">groundTrackBodyNameList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">groundTrackBodyName</span> <span class="o">=</span> <span class="n">groundTrackBodyNameList</span>
+
+    <span class="k">if</span> <span class="n">msmInfoList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">msmInfo</span> <span class="o">=</span> <span class="n">msmInfoList</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_handleMJScene</span><span class="p">(</span><span class="n">viz</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">scSim</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">planetNameList</span><span class="p">,</span> <span class="n">planetInfoList</span><span class="p">,</span> <span class="n">spiceMsgList</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                   <span class="n">cssList</span><span class="p">,</span> <span class="n">genericSensorList</span><span class="p">,</span> <span class="n">ellipsoidList</span><span class="p">,</span> <span class="n">lightList</span><span class="p">,</span>
+                   <span class="n">genericStorageList</span><span class="p">,</span> <span class="n">transceiverList</span><span class="p">,</span> <span class="n">spriteList</span><span class="p">,</span>
+                   <span class="n">modelDictionaryKeyList</span><span class="p">,</span> <span class="n">logoTextureList</span><span class="p">,</span> <span class="n">oscOrbitColorList</span><span class="p">,</span>
+                   <span class="n">trueOrbitColorList</span><span class="p">,</span> <span class="n">trueOrbitColorInMsgList</span><span class="p">,</span>
+                   <span class="n">groundTrackColorList</span><span class="p">,</span> <span class="n">groundTrackBodyNameList</span><span class="p">,</span> <span class="n">msmInfoList</span><span class="p">,</span>
+                   <span class="n">usedSpacecraftNames</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Register all MJScene bodies with the vizInterface messenger.</span>
+
+<span class="sd">    Each world-parented MuJoCo body is emitted as an individual Vizard</span>
+<span class="sd">    spacecraft.  Non-root MuJoCo bodies are emitted as child spacecraft using</span>
+<span class="sd">    their MuJoCo parent body name as ``parentSpacecraftName``.</span>
+
+<span class="sd">    Gravity bodies are pulled from the ``_vizGravBodies`` attribute on the</span>
+<span class="sd">    scene if present.  Set this before calling</span>
+<span class="sd">    :func:`enableUnityVisualization`::</span>
+
+<span class="sd">        scene._vizGravBodies = gravFactory.gravBodies</span>
+
+<span class="sd">    Visual elements (CSS, lights, sensors, etc.) follow the same list-per-</span>
+<span class="sd">    spacecraft convention as the rest of :func:`enableUnityVisualization`.</span>
+<span class="sd">    The entry at index *c* for each visual-element list may be:</span>
+
+<span class="sd">    * ``None`` - no visuals.</span>
+<span class="sd">    * A plain list / object - applied to root (world-parented) bodies only.</span>
+<span class="sd">    * A ``dict {bodyName: list}`` - applied per named body (hub or child).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bodyNames</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">getBodyNames</span><span class="p">()</span>
+
+    <span class="n">rootBodyNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">bodyNames</span> <span class="k">if</span> <span class="n">sc</span><span class="o">.</span><span class="n">getBodyParentName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;world&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rootBodyNames</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;MJScene has no world-parented body. Cannot determine Vizard spacecraft roots.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Collect gravity bodies attached by the user for Vizard planet display.</span>
+    <span class="n">_registerGravBodies</span><span class="p">(</span>
+        <span class="n">scSim</span><span class="p">,</span> <span class="nb">list</span><span class="p">((</span><span class="nb">getattr</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="s2">&quot;_vizGravBodies&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+        <span class="n">planetNameList</span><span class="p">,</span> <span class="n">planetInfoList</span><span class="p">,</span> <span class="n">spiceMsgList</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_visuals</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">is_hub</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build kwargs for _applyVisuals for one body.&quot;&quot;&quot;</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_resolveBodyVisual</span><span class="p">(</span><span class="n">lst</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">if</span> <span class="n">lst</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">is_hub</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">cssList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">cssList</span><span class="p">),</span>
+            <span class="n">genericSensorList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">genericSensorList</span><span class="p">),</span>
+            <span class="n">ellipsoidList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">ellipsoidList</span><span class="p">),</span>
+            <span class="n">lightList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">lightList</span><span class="p">),</span>
+            <span class="n">genericStorageList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">genericStorageList</span><span class="p">),</span>
+            <span class="n">transceiverList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">transceiverList</span><span class="p">),</span>
+            <span class="n">spriteList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">spriteList</span><span class="p">),</span>
+            <span class="n">modelDictionaryKeyList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">modelDictionaryKeyList</span><span class="p">),</span>
+            <span class="n">logoTextureList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">logoTextureList</span><span class="p">),</span>
+            <span class="n">oscOrbitColorList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">oscOrbitColorList</span><span class="p">),</span>
+            <span class="n">trueOrbitColorList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">trueOrbitColorList</span><span class="p">),</span>
+            <span class="n">trueOrbitColorInMsgList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">trueOrbitColorInMsgList</span><span class="p">),</span>
+            <span class="n">groundTrackColorList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">groundTrackColorList</span><span class="p">),</span>
+            <span class="n">groundTrackBodyNameList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">groundTrackBodyNameList</span><span class="p">),</span>
+            <span class="n">msmInfoList</span><span class="o">=</span><span class="n">resolve</span><span class="p">(</span><span class="n">msmInfoList</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">bodyGeomVizInfos</span> <span class="o">=</span> <span class="n">_getMJSceneGeomVizInfos</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">hubName</span> <span class="ow">in</span> <span class="n">rootBodyNames</span><span class="p">:</span>
+        <span class="n">scData</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">VizSpacecraftData</span><span class="p">()</span>
+        <span class="n">_registerVizardSpacecraftName</span><span class="p">(</span><span class="n">hubName</span><span class="p">,</span> <span class="n">usedSpacecraftNames</span><span class="p">)</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">hubName</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">getBody</span><span class="p">(</span><span class="n">hubName</span><span class="p">)</span><span class="o">.</span><span class="n">getOrigin</span><span class="p">()</span><span class="o">.</span><span class="n">stateOutMsg</span><span class="p">)</span>
+        <span class="n">_applyVisuals</span><span class="p">(</span><span class="n">scData</span><span class="p">,</span> <span class="o">**</span><span class="n">_visuals</span><span class="p">(</span><span class="n">hubName</span><span class="p">,</span> <span class="n">is_hub</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">_appendMJSceneMultiShapes</span><span class="p">(</span><span class="n">scData</span><span class="p">,</span> <span class="n">bodyGeomVizInfos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hubName</span><span class="p">,</span> <span class="p">[])[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">scData</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">bodyNames</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">rootBodyNames</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">scData</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">VizSpacecraftData</span><span class="p">()</span>
+        <span class="n">_registerVizardSpacecraftName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">usedSpacecraftNames</span><span class="p">)</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">parentSpacecraftName</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">getBodyParentName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">getBody</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">getOrigin</span><span class="p">()</span><span class="o">.</span><span class="n">stateOutMsg</span><span class="p">)</span>
+        <span class="n">_applyVisuals</span><span class="p">(</span><span class="n">scData</span><span class="p">,</span> <span class="o">**</span><span class="n">_visuals</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">is_hub</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="n">_appendMJSceneMultiShapes</span><span class="p">(</span><span class="n">scData</span><span class="p">,</span> <span class="n">bodyGeomVizInfos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[])[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">scData</span><span class="p">)</span>
+
+    <span class="n">_createCustomModelsFromMJScene</span><span class="p">(</span><span class="n">viz</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">bodyGeomVizInfos</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_registerGravBodies</span><span class="p">(</span><span class="n">scSim</span><span class="p">,</span> <span class="n">gravBodies</span><span class="p">,</span> <span class="n">planetNameList</span><span class="p">,</span> <span class="n">planetInfoList</span><span class="p">,</span> <span class="n">spiceMsgList</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a list of gravity bodies for Vizard planet display.</span>
+
+<span class="sd">    Deduplicates by planet name across all spacecraft/scenes in the simulation.</span>
+<span class="sd">    Called by both :func:`_handleSpacecraft` and :func:`_handleMJScene`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kept</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">scSim</span><span class="p">,</span> <span class="s2">&quot;_kept_grav_bodies&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">for</span> <span class="n">gravBody</span> <span class="ow">in</span> <span class="n">gravBodies</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">planetName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kept</span><span class="p">:</span>
+            <span class="n">kept</span><span class="p">[</span><span class="n">gravBody</span><span class="o">.</span><span class="n">planetName</span><span class="p">]</span> <span class="o">=</span> <span class="n">gravBody</span>
+            <span class="n">planetNameList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gravBody</span><span class="o">.</span><span class="n">planetName</span><span class="p">)</span>
+            <span class="n">planetInfo</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GravBodyInfo</span><span class="p">()</span>
+            <span class="n">planetInfo</span><span class="o">.</span><span class="n">bodyName</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">gravBody</span><span class="p">,</span> <span class="s2">&quot;displayName&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">planetName</span>
+            <span class="n">planetInfo</span><span class="o">.</span><span class="n">mu</span> <span class="o">=</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">mu</span>
+            <span class="n">planetInfo</span><span class="o">.</span><span class="n">radEquator</span> <span class="o">=</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">radEquator</span>
+            <span class="n">planetInfo</span><span class="o">.</span><span class="n">radiusRatio</span> <span class="o">=</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">radiusRatio</span>
+            <span class="n">planetInfo</span><span class="o">.</span><span class="n">modelDictionaryKey</span> <span class="o">=</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">modelDictionaryKey</span>
+            <span class="n">planetInfoList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">planetInfo</span><span class="p">)</span>
+            <span class="n">spiceMsgList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gravBody</span><span class="o">.</span><span class="n">planetBodyInMsg</span><span class="p">)</span>
+    <span class="n">scSim</span><span class="o">.</span><span class="n">_kept_grav_bodies</span> <span class="o">=</span> <span class="n">kept</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_handleSpacecraft</span><span class="p">(</span><span class="n">scSim</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">scData</span><span class="p">,</span> <span class="n">planetNameList</span><span class="p">,</span> <span class="n">planetInfoList</span><span class="p">,</span> <span class="n">spiceMsgList</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Populate scData for a Spacecraft entry and collect grav body info.</span>
+
+<span class="sd">    Returns the spacecraftParentName for use by subsequent effector entries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">ModelTag</span>
+    <span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">scStateOutMsg</span><span class="p">)</span>
+
+    <span class="n">gravBodies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="s2">&quot;gravField&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;gravBodies&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="n">_registerGravBodies</span><span class="p">(</span><span class="n">scSim</span><span class="p">,</span> <span class="n">gravBodies</span><span class="p">,</span> <span class="n">planetNameList</span><span class="p">,</span> <span class="n">planetInfoList</span><span class="p">,</span> <span class="n">spiceMsgList</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sc</span><span class="o">.</span><span class="n">ModelTag</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_handleEffector</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">scData</span><span class="p">,</span> <span class="n">spacecraftParentName</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Populate scData for an effector tuple (name, stateOutMsg) entry.&quot;&quot;&quot;</span>
+    <span class="n">scData</span><span class="o">.</span><span class="n">parentSpacecraftName</span> <span class="o">=</span> <span class="n">spacecraftParentName</span>
+    <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">sc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_handleSubComponents</span><span class="p">(</span>
+    <span class="n">scData</span><span class="p">,</span>
+    <span class="n">c</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">rwEffectorList</span><span class="p">,</span>
+    <span class="n">thrEffectorList</span><span class="p">,</span>
+    <span class="n">thrColors</span><span class="p">,</span>
+    <span class="n">cssList</span><span class="p">,</span>
+    <span class="n">genericSensorList</span><span class="p">,</span>
+    <span class="n">ellipsoidList</span><span class="p">,</span>
+    <span class="n">lightList</span><span class="p">,</span>
+    <span class="n">genericStorageList</span><span class="p">,</span>
+    <span class="n">transceiverList</span><span class="p">,</span>
+    <span class="n">spriteList</span><span class="p">,</span>
+    <span class="n">modelDictionaryKeyList</span><span class="p">,</span>
+    <span class="n">logoTextureList</span><span class="p">,</span>
+    <span class="n">oscOrbitColorList</span><span class="p">,</span>
+    <span class="n">trueOrbitColorList</span><span class="p">,</span>
+    <span class="n">trueOrbitColorInMsgList</span><span class="p">,</span>
+    <span class="n">groundTrackColorList</span><span class="p">,</span>
+    <span class="n">groundTrackBodyNameList</span><span class="p">,</span>
+    <span class="n">msmInfoList</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attach all per-spacecraft effector and display data to scData.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">rwEffectorList</span><span class="p">:</span>
+        <span class="n">rwList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">rwEffectorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">rwLogMsg</span> <span class="ow">in</span> <span class="n">rwEffectorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">rwOutMsgs</span><span class="p">:</span>
+                <span class="n">rwList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rwLogMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">())</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">rwInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">RWConfigLogMsgInMsgsVector</span><span class="p">(</span><span class="n">rwList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">thrEffectorList</span><span class="p">:</span>
+        <span class="n">thrList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">thrInfo</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">thrEffectorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">clusterCounter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">thrEff</span> <span class="ow">in</span> <span class="n">thrEffectorList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
+                <span class="n">thSet</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">ThrClusterMap</span><span class="p">()</span>
+                <span class="n">thSet</span><span class="o">.</span><span class="n">thrTag</span> <span class="o">=</span> <span class="n">thrEff</span><span class="o">.</span><span class="n">ModelTag</span>
+                <span class="k">if</span> <span class="n">thrColors</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">thrColors</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">thSet</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">thrColors</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">clusterCounter</span><span class="p">]</span>
+                <span class="c1"># optionally offset the thruster positions, useful for effector branching corrections</span>
+                <span class="k">if</span> <span class="n">scData</span><span class="o">.</span><span class="n">parentSpacecraftName</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">thSet</span><span class="o">.</span><span class="n">thrOffset</span> <span class="o">=</span> <span class="n">thrEff</span><span class="o">.</span><span class="n">r_PcP_P</span>
+                <span class="k">for</span> <span class="n">thrLogMsg</span> <span class="ow">in</span> <span class="n">thrEff</span><span class="o">.</span><span class="n">thrusterOutMsgs</span><span class="p">:</span>
+                    <span class="n">thrList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thrLogMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">())</span>
+                    <span class="n">thrInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thSet</span><span class="p">)</span>
+                <span class="n">clusterCounter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">thrInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsgInMsgsVector</span><span class="p">(</span><span class="n">thrList</span><span class="p">)</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">thrInfo</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">ThrClusterVector</span><span class="p">(</span><span class="n">thrInfo</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cssList</span><span class="p">:</span>
+        <span class="n">cssDeviceList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">cssList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">css</span> <span class="ow">in</span> <span class="n">cssList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
+                <span class="n">cssDeviceList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">css</span><span class="o">.</span><span class="n">cssConfigLogOutMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">())</span>
+            <span class="n">scData</span><span class="o">.</span><span class="n">cssInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">CSSConfigLogMsgInMsgsVector</span><span class="p">(</span><span class="n">cssDeviceList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">genericSensorList</span><span class="p">:</span>
+        <span class="n">gsList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">genericSensorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">gs</span> <span class="ow">in</span> <span class="n">genericSensorList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
+                <span class="n">gsList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gs</span><span class="p">)</span>
+            <span class="n">scData</span><span class="o">.</span><span class="n">genericSensorList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericSensorVector</span><span class="p">(</span><span class="n">gsList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ellipsoidList</span><span class="p">:</span>
+        <span class="n">elList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">ellipsoidList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">ellipsoidList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
+                <span class="n">elList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+            <span class="n">scData</span><span class="o">.</span><span class="n">ellipsoidList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">EllipsoidVector</span><span class="p">(</span><span class="n">elList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lightList</span><span class="p">:</span>
+        <span class="n">liList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">lightList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">lightList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
+                <span class="n">liList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
+            <span class="n">scData</span><span class="o">.</span><span class="n">lightList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">LightVector</span><span class="p">(</span><span class="n">liList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">genericStorageList</span><span class="p">:</span>
+        <span class="n">gsdList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">genericStorageList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">gsd</span> <span class="ow">in</span> <span class="n">genericStorageList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">color</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">color</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span>
+                            <span class="s2">&quot;ERROR: vizSupport: generic storage &quot;</span>
+                            <span class="o">+</span> <span class="n">gsd</span><span class="o">.</span><span class="n">label</span>
+                            <span class="o">+</span> <span class="s2">&quot; threshold list does not have the correct dimension.  &quot;</span>
+                            <span class="s2">&quot;It should be 1 smaller than the list of colors.&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span>
+                            <span class="s2">&quot;ERROR: vizSupport: generic storage &quot;</span>
+                            <span class="o">+</span> <span class="n">gsd</span><span class="o">.</span><span class="n">label</span>
+                            <span class="o">+</span> <span class="s2">&quot; threshold list is set, but no multiple of colors are provided.&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">gsdList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gsd</span><span class="p">)</span>
+            <span class="n">scData</span><span class="o">.</span><span class="n">genericStorageList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericStorageVector</span><span class="p">(</span><span class="n">gsdList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">transceiverList</span><span class="p">:</span>
+        <span class="n">tcList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">transceiverList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">tc</span> <span class="ow">in</span> <span class="n">transceiverList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
+                <span class="n">tcList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tc</span><span class="p">)</span>
+            <span class="n">scData</span><span class="o">.</span><span class="n">transceiverList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">TransceiverVector</span><span class="p">(</span><span class="n">tcList</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">spriteList</span> <span class="ow">and</span> <span class="n">spriteList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftSprite</span> <span class="o">=</span> <span class="n">spriteList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">modelDictionaryKeyList</span> <span class="ow">and</span> <span class="n">modelDictionaryKeyList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">modelDictionaryKey</span> <span class="o">=</span> <span class="n">modelDictionaryKeyList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">logoTextureList</span> <span class="ow">and</span> <span class="n">logoTextureList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">logoTexture</span> <span class="o">=</span> <span class="n">logoTextureList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">oscOrbitColorList</span> <span class="ow">and</span> <span class="n">oscOrbitColorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">oscOrbitLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">oscOrbitColorList</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">trueOrbitColorList</span> <span class="ow">and</span> <span class="n">trueOrbitColorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">trueTrajectoryLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">trueOrbitColorList</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">trueOrbitColorInMsgList</span> <span class="ow">and</span> <span class="n">trueOrbitColorInMsgList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">trueTrajectoryLineColorInMsg</span> <span class="o">=</span> <span class="n">trueOrbitColorInMsgList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">groundTrackColorList</span> <span class="ow">and</span> <span class="n">groundTrackColorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">groundTrackLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">groundTrackColorList</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">groundTrackBodyNameList</span> <span class="ow">and</span> <span class="n">groundTrackBodyNameList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">groundTrackBodyName</span> <span class="o">=</span> <span class="n">groundTrackBodyNameList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">msmInfoList</span> <span class="ow">and</span> <span class="n">msmInfoList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">msmInfo</span> <span class="o">=</span> <span class="n">msmInfoList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="enableUnityVisualization">
@@ -1262,7 +1812,34 @@
 <span class="sd">    simTaskName:</span>
 <span class="sd">        task to which to add the vizInterface module</span>
 <span class="sd">    scList:</span>
-<span class="sd">        :ref:`spacecraft` objects.  Can be a single object or list of objects</span>
+<span class="sd">        :ref:`spacecraft` objects, :ref:`MJScene` objects, or tuples of (name, stateOutMsg).</span>
+<span class="sd">        Can be a single object or list of objects.</span>
+<span class="sd">        When an :ref:`MJScene` is provided, all bodies are auto-discovered and their</span>
+<span class="sd">        parent-child hierarchy is resolved from the MuJoCo model.  Each</span>
+<span class="sd">        world-parented MuJoCo body is emitted as an individual Vizard spacecraft;</span>
+<span class="sd">        non-root MuJoCo bodies are emitted as child spacecraft.  Each emitted</span>
+<span class="sd">        Vizard spacecraft name must be unique across this list.  For an</span>
+<span class="sd">        MJScene, the emitted names are the local MuJoCo body names.</span>
+
+<span class="sd">        **Gravity bodies** - attach a ``gravBodyFactory`` body list to the scene</span>
+<span class="sd">        before calling this function so that planets appear in Vizard::</span>
+
+<span class="sd">            gravFactory = simIncludeGravBody.gravBodyFactory()</span>
+<span class="sd">            earth = gravFactory.createEarth()</span>
+<span class="sd">            earth.isCentralBody = True</span>
+<span class="sd">            scene._vizGravBodies = gravFactory.gravBodies</span>
+
+<span class="sd">        **Visual elements** - ``cssList``, ``lightList``, etc. support an extra</span>
+<span class="sd">        addressing mode when the corresponding ``scList`` entry is an</span>
+<span class="sd">        :ref:`MJScene`.  Instead of a plain list (which is applied to hub bodies</span>
+<span class="sd">        only), you may pass a ``dict`` mapping body names to their element lists</span>
+<span class="sd">        to target specific bodies::</span>
+
+<span class="sd">            # CSS on the hub body only (flat list -&gt; hub bodies):</span>
+<span class="sd">            cssList = [[css1, css2]]</span>
+
+<span class="sd">            # CSS on specific named bodies (dict):</span>
+<span class="sd">            cssList = [{&quot;hub&quot;: [css1], &quot;panel_1&quot;: [css2]}]</span>
 
 <span class="sd">    Keyword Args</span>
 <span class="sd">    ------------</span>
@@ -1340,6 +1917,7 @@
     <span class="k">del</span> <span class="n">pointLineList</span><span class="p">[:]</span>
     <span class="k">del</span> <span class="n">actuatorGuiSettingList</span><span class="p">[:]</span>
     <span class="k">del</span> <span class="n">coneInOutList</span><span class="p">[:]</span>
+    <span class="k">del</span> <span class="n">customModelList</span><span class="p">[:]</span>
     <span class="k">global</span> <span class="n">firstSpacecraftName</span>
 
     <span class="c1"># set up the Vizard interface module</span>
@@ -1353,7 +1931,19 @@
         <span class="n">scList</span> <span class="o">=</span> <span class="p">[</span><span class="n">scList</span><span class="p">]</span>
     <span class="n">scListLength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scList</span><span class="p">)</span>
 
-    <span class="n">firstSpacecraftName</span> <span class="o">=</span> <span class="n">scList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ModelTag</span>
+    <span class="c1"># firstSpacecraftName is the name used to default per-spacecraft helpers</span>
+    <span class="c1"># like setInstrumentGuiSetting.  For MJScene, the scData entries are keyed</span>
+    <span class="c1"># by *body* name (each world-parented body becomes one spacecraft in</span>
+    <span class="c1"># Vizard) rather than the scene&#39;s ModelTag, so default to the first root</span>
+    <span class="c1"># body name.</span>
+    <span class="k">if</span> <span class="n">mujocoFound</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scList</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mujoco</span><span class="o">.</span><span class="n">MJScene</span><span class="p">):</span>
+        <span class="n">sceneBodyNames</span> <span class="o">=</span> <span class="n">scList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">getBodyNames</span><span class="p">()</span>
+        <span class="n">firstSpacecraftName</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sceneBodyNames</span> <span class="k">if</span> <span class="n">scList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">getBodyParentName</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;world&quot;</span><span class="p">),</span>
+            <span class="n">scList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ModelTag</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">firstSpacecraftName</span> <span class="o">=</span> <span class="n">scList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ModelTag</span>
 
     <span class="k">if</span> <span class="n">rwEffectorList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">rwEffectorList</span> <span class="o">=</span> <span class="n">ensure_correct_len_list</span><span class="p">(</span><span class="n">rwEffectorList</span><span class="p">,</span> <span class="n">scListLength</span><span class="p">)</span>
@@ -1412,211 +2002,72 @@
     <span class="k">if</span> <span class="n">msmInfoList</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">msmInfoList</span> <span class="o">=</span> <span class="n">ensure_correct_len_list</span><span class="p">(</span><span class="n">msmInfoList</span><span class="p">,</span> <span class="n">scListLength</span><span class="p">)</span>
 
-    <span class="c1"># loop over all spacecraft to associated states and msg information</span>
+    <span class="c1"># loop over all spacecraft to associate states and msg information</span>
     <span class="n">planetNameList</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">planetInfoList</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">spiceMsgList</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">scSim</span><span class="o">.</span><span class="n">vizMessenger</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">del</span> <span class="n">mjSceneMultiShapeList</span><span class="p">[:]</span>
     <span class="n">spacecraftParentName</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">usedSpacecraftNames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-    <span class="k">for</span> <span class="n">sc</span> <span class="ow">in</span> <span class="n">scList</span><span class="p">:</span>
-        <span class="c1"># create spacecraft information container</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">sc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scList</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mujocoFound</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">mujoco</span><span class="o">.</span><span class="n">MJScene</span><span class="p">):</span>
+            <span class="n">_handleMJScene</span><span class="p">(</span>
+                <span class="n">scSim</span><span class="o">.</span><span class="n">vizMessenger</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">scSim</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span>
+                <span class="n">planetNameList</span><span class="p">,</span> <span class="n">planetInfoList</span><span class="p">,</span> <span class="n">spiceMsgList</span><span class="p">,</span>
+                <span class="n">cssList</span><span class="o">=</span><span class="n">cssList</span><span class="p">,</span>
+                <span class="n">genericSensorList</span><span class="o">=</span><span class="n">genericSensorList</span><span class="p">,</span>
+                <span class="n">ellipsoidList</span><span class="o">=</span><span class="n">ellipsoidList</span><span class="p">,</span>
+                <span class="n">lightList</span><span class="o">=</span><span class="n">lightList</span><span class="p">,</span>
+                <span class="n">genericStorageList</span><span class="o">=</span><span class="n">genericStorageList</span><span class="p">,</span>
+                <span class="n">transceiverList</span><span class="o">=</span><span class="n">transceiverList</span><span class="p">,</span>
+                <span class="n">spriteList</span><span class="o">=</span><span class="n">spriteList</span><span class="p">,</span>
+                <span class="n">modelDictionaryKeyList</span><span class="o">=</span><span class="n">modelDictionaryKeyList</span><span class="p">,</span>
+                <span class="n">logoTextureList</span><span class="o">=</span><span class="n">logoTextureList</span><span class="p">,</span>
+                <span class="n">oscOrbitColorList</span><span class="o">=</span><span class="n">oscOrbitColorList</span><span class="p">,</span>
+                <span class="n">trueOrbitColorList</span><span class="o">=</span><span class="n">trueOrbitColorList</span><span class="p">,</span>
+                <span class="n">trueOrbitColorInMsgList</span><span class="o">=</span><span class="n">trueOrbitColorInMsgList</span><span class="p">,</span>
+                <span class="n">groundTrackColorList</span><span class="o">=</span><span class="n">groundTrackColorList</span><span class="p">,</span>
+                <span class="n">groundTrackBodyNameList</span><span class="o">=</span><span class="n">groundTrackBodyNameList</span><span class="p">,</span>
+                <span class="n">msmInfoList</span><span class="o">=</span><span class="n">msmInfoList</span><span class="p">,</span>
+                <span class="n">usedSpacecraftNames</span><span class="o">=</span><span class="n">usedSpacecraftNames</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
         <span class="n">scData</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">VizSpacecraftData</span><span class="p">()</span>
 
-        <span class="c1"># link to spacecraft state message</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">Spacecraft</span><span class="p">())):</span>
-            <span class="c1"># set spacecraft name</span>
-            <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">ModelTag</span>
-            <span class="n">spacecraftParentName</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">ModelTag</span>
-            <span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">scStateOutMsg</span><span class="p">)</span>
-
-            <span class="c1"># link to celestial bodies information</span>
-            <span class="n">bodies</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="s2">&quot;gravField&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;gravBodies&quot;</span><span class="p">,</span> <span class="p">[]))</span>
-            <span class="k">if</span> <span class="n">bodies</span><span class="p">:</span>  <span class="c1"># only runs if gravField exists and has bodies</span>
-                <span class="c1"># get the existing dict of kept wrappers, or start fresh</span>
-                <span class="n">kept</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">scSim</span><span class="p">,</span> <span class="s2">&quot;_kept_grav_bodies&quot;</span><span class="p">,</span> <span class="p">{})</span>
-
-                <span class="k">for</span> <span class="n">gravBody</span> <span class="ow">in</span> <span class="n">bodies</span><span class="p">:</span>
-                    <span class="c1"># use planetName as a unique key; you could also key by id(gravBody) if needed</span>
-                    <span class="k">if</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">planetName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kept</span><span class="p">:</span>
-                        <span class="n">kept</span><span class="p">[</span><span class="n">gravBody</span><span class="o">.</span><span class="n">planetName</span><span class="p">]</span> <span class="o">=</span> <span class="n">gravBody</span>
-
-                        <span class="n">planetNameList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gravBody</span><span class="o">.</span><span class="n">planetName</span><span class="p">)</span>
-                        <span class="n">planetInfo</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GravBodyInfo</span><span class="p">()</span>
-                        <span class="n">planetInfo</span><span class="o">.</span><span class="n">bodyName</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">gravBody</span><span class="p">,</span> <span class="s2">&quot;displayName&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">planetName</span>
-                        <span class="n">planetInfo</span><span class="o">.</span><span class="n">mu</span> <span class="o">=</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">mu</span>
-                        <span class="n">planetInfo</span><span class="o">.</span><span class="n">radEquator</span> <span class="o">=</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">radEquator</span>
-                        <span class="n">planetInfo</span><span class="o">.</span><span class="n">radiusRatio</span> <span class="o">=</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">radiusRatio</span>
-                        <span class="n">planetInfo</span><span class="o">.</span><span class="n">modelDictionaryKey</span> <span class="o">=</span> <span class="n">gravBody</span><span class="o">.</span><span class="n">modelDictionaryKey</span>
-                        <span class="n">planetInfoList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">planetInfo</span><span class="p">)</span>
-                        <span class="n">spiceMsgList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gravBody</span><span class="o">.</span><span class="n">planetBodyInMsg</span><span class="p">)</span>
-
-                <span class="c1"># update the dict back onto scSim</span>
-                <span class="n">scSim</span><span class="o">.</span><span class="n">_kept_grav_bodies</span> <span class="o">=</span> <span class="n">kept</span>
+            <span class="n">spacecraftParentName</span> <span class="o">=</span> <span class="n">_handleSpacecraft</span><span class="p">(</span>
+                <span class="n">scSim</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">scData</span><span class="p">,</span> <span class="n">planetNameList</span><span class="p">,</span> <span class="n">planetInfoList</span><span class="p">,</span> <span class="n">spiceMsgList</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># the scList object is an effector belonging to the parent spacecraft</span>
-            <span class="n">scData</span><span class="o">.</span><span class="n">parentSpacecraftName</span> <span class="o">=</span> <span class="n">spacecraftParentName</span>
-            <span class="n">ModelTag</span> <span class="o">=</span> <span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">effStateOutMsg</span> <span class="o">=</span> <span class="n">sc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">ModelTag</span>
-            <span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">effStateOutMsg</span><span class="p">)</span>
+            <span class="n">_handleEffector</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">scData</span><span class="p">,</span> <span class="n">spacecraftParentName</span><span class="p">)</span>
 
-        <span class="c1"># process RW effectors</span>
-        <span class="k">if</span> <span class="n">rwEffectorList</span><span class="p">:</span>
-            <span class="n">rwList</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="n">rwEffectorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># RWs have been added to this spacecraft</span>
-                <span class="k">for</span> <span class="n">rwLogMsg</span> <span class="ow">in</span> <span class="n">rwEffectorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">rwOutMsgs</span><span class="p">:</span>
-                    <span class="n">rwList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rwLogMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">())</span>
-            <span class="n">scData</span><span class="o">.</span><span class="n">rwInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">RWConfigLogMsgInMsgsVector</span><span class="p">(</span><span class="n">rwList</span><span class="p">)</span>
-
-        <span class="c1"># process THR effectors</span>
-        <span class="k">if</span> <span class="n">thrEffectorList</span><span class="p">:</span>
-            <span class="n">thrList</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">thrInfo</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">thrEffectorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>  <span class="c1"># THR clusters have been added to this spacecraft</span>
-                <span class="n">clusterCounter</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">for</span> <span class="n">thrEff</span> <span class="ow">in</span> <span class="n">thrEffectorList</span><span class="p">[</span>
-                    <span class="n">c</span>
-                <span class="p">]:</span>  <span class="c1"># loop over the THR effectors attached to this spacecraft</span>
-                    <span class="n">thSet</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">ThrClusterMap</span><span class="p">()</span>
-                    <span class="n">thSet</span><span class="o">.</span><span class="n">thrTag</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">thrEff</span><span class="o">.</span><span class="n">ModelTag</span>
-                    <span class="p">)</span>  <span class="c1"># set the label for this cluster of THR devices</span>
-                    <span class="k">if</span> <span class="n">thrColors</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">thrColors</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="n">thSet</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">thrColors</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">clusterCounter</span><span class="p">]</span>
-                    <span class="c1"># optionally offset the thruster positions, useful for effector branching corrections</span>
-                    <span class="k">if</span> <span class="n">scData</span><span class="o">.</span><span class="n">parentSpacecraftName</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-                        <span class="n">thSet</span><span class="o">.</span><span class="n">thrOffset</span> <span class="o">=</span> <span class="n">thrEff</span><span class="o">.</span><span class="n">r_PcP_P</span>
-                    <span class="k">for</span> <span class="n">thrLogMsg</span> <span class="ow">in</span> <span class="p">(</span><span class="n">thrEff</span><span class="o">.</span><span class="n">thrusterOutMsgs</span><span class="p">):</span>  <span class="c1"># loop over the THR cluster log message</span>
-                        <span class="n">thrList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thrLogMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">())</span>
-                        <span class="n">thrInfo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thSet</span><span class="p">)</span>
-                    <span class="n">clusterCounter</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">scData</span><span class="o">.</span><span class="n">thrInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsgInMsgsVector</span><span class="p">(</span><span class="n">thrList</span><span class="p">)</span>
-            <span class="n">scData</span><span class="o">.</span><span class="n">thrInfo</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">ThrClusterVector</span><span class="p">(</span><span class="n">thrInfo</span><span class="p">)</span>
-
-        <span class="c1"># process CSS information</span>
-        <span class="k">if</span> <span class="n">cssList</span><span class="p">:</span>
-            <span class="n">cssDeviceList</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="n">cssList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># CSS list has been added to this spacecraft</span>
-                <span class="k">for</span> <span class="n">css</span> <span class="ow">in</span> <span class="n">cssList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
-                    <span class="n">cssDeviceList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">css</span><span class="o">.</span><span class="n">cssConfigLogOutMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">())</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">cssInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">CSSConfigLogMsgInMsgsVector</span><span class="p">(</span><span class="n">cssDeviceList</span><span class="p">)</span>
-
-        <span class="c1"># process generic sensor HUD information</span>
-        <span class="k">if</span> <span class="n">genericSensorList</span><span class="p">:</span>
-            <span class="n">gsList</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">genericSensorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>  <span class="c1"># generic sensor(s) have been added to this spacecraft</span>
-                <span class="k">for</span> <span class="n">gs</span> <span class="ow">in</span> <span class="n">genericSensorList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
-                    <span class="n">gsList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gs</span><span class="p">)</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">genericSensorList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericSensorVector</span><span class="p">(</span><span class="n">gsList</span><span class="p">)</span>
-
-        <span class="c1"># process spacecraft ellipsoids</span>
-        <span class="k">if</span> <span class="n">ellipsoidList</span><span class="p">:</span>
-            <span class="n">elList</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">ellipsoidList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>  <span class="c1"># generic sensor(s) have been added to this spacecraft</span>
-                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">ellipsoidList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
-                    <span class="n">elList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">ellipsoidList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">EllipsoidVector</span><span class="p">(</span><span class="n">elList</span><span class="p">)</span>
-
-        <span class="c1"># process spacecraft lights</span>
-        <span class="k">if</span> <span class="n">lightList</span><span class="p">:</span>
-            <span class="n">liList</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">lightList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>  <span class="c1"># light objects(s) have been added to this spacecraft</span>
-                <span class="k">for</span> <span class="n">li</span> <span class="ow">in</span> <span class="n">lightList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
-                    <span class="n">liList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">li</span><span class="p">)</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">lightList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">LightVector</span><span class="p">(</span><span class="n">liList</span><span class="p">)</span>
-
-        <span class="c1"># process generic storage HUD information</span>
-        <span class="k">if</span> <span class="n">genericStorageList</span><span class="p">:</span>
-            <span class="n">gsdList</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">genericStorageList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>  <span class="c1"># generic storage device(s) have been added to this spacecraft</span>
-                <span class="k">for</span> <span class="n">gsd</span> <span class="ow">in</span> <span class="n">genericStorageList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">color</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">color</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span>
-                                <span class="s2">&quot;ERROR: vizSupport: generic storage &quot;</span>
-                                <span class="o">+</span> <span class="n">gsd</span><span class="o">.</span><span class="n">label</span>
-                                <span class="o">+</span> <span class="s2">&quot; threshold list does not have the correct dimension.  &quot;</span>
-                                <span class="s2">&quot;It should be 1 smaller than the list of colors.&quot;</span>
-                            <span class="p">)</span>
-                            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gsd</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span>
-                                <span class="s2">&quot;ERROR: vizSupport: generic storage &quot;</span>
-                                <span class="o">+</span> <span class="n">gsd</span><span class="o">.</span><span class="n">label</span>
-                                <span class="o">+</span> <span class="s2">&quot; threshold list is set, but no multiple of colors are provided.&quot;</span>
-                            <span class="p">)</span>
-                            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-                    <span class="n">gsdList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gsd</span><span class="p">)</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">genericStorageList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericStorageVector</span><span class="p">(</span><span class="n">gsdList</span><span class="p">)</span>
-
-        <span class="c1"># process transceiver HUD information</span>
-        <span class="k">if</span> <span class="n">transceiverList</span><span class="p">:</span>
-            <span class="n">tcList</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">transceiverList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">):</span>  <span class="c1"># transceiver(s) have been added to this spacecraft</span>
-                <span class="k">for</span> <span class="n">tc</span> <span class="ow">in</span> <span class="n">transceiverList</span><span class="p">[</span><span class="n">c</span><span class="p">]:</span>
-                    <span class="n">tcList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tc</span><span class="p">)</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">transceiverList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">TransceiverVector</span><span class="p">(</span><span class="n">tcList</span><span class="p">)</span>
-
-        <span class="c1"># process sprite information</span>
-        <span class="k">if</span> <span class="n">spriteList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">spriteList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftSprite</span> <span class="o">=</span> <span class="n">spriteList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
-        <span class="c1"># process modelDictionaryKey information</span>
-        <span class="k">if</span> <span class="n">modelDictionaryKeyList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">modelDictionaryKeyList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">modelDictionaryKey</span> <span class="o">=</span> <span class="n">modelDictionaryKeyList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
-        <span class="c1"># process logoTexture information</span>
-        <span class="k">if</span> <span class="n">logoTextureList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">logoTextureList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">logoTexture</span> <span class="o">=</span> <span class="n">logoTextureList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">oscOrbitColorList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">oscOrbitColorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">oscOrbitLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">oscOrbitColorList</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="n">trueOrbitColorList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">trueOrbitColorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">trueTrajectoryLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span>
-                    <span class="n">trueOrbitColorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
-                <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">trueOrbitColorInMsgList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">trueOrbitColorInMsgList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">trueTrajectoryLineColorInMsg</span> <span class="o">=</span> <span class="n">trueOrbitColorInMsgList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">groundTrackColorList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">groundTrackColorList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">groundTrackLineColor</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">IntVector</span><span class="p">(</span><span class="n">groundTrackColorList</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="n">groundTrackBodyNameList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">groundTrackBodyNameList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">groundTrackBodyName</span> <span class="o">=</span> <span class="n">groundTrackBodyNameList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
-
-        <span class="c1"># process MSM information</span>
-        <span class="k">if</span> <span class="n">msmInfoList</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">msmInfoList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># MSM have been added to this spacecraft</span>
-                <span class="n">scData</span><span class="o">.</span><span class="n">msmInfo</span> <span class="o">=</span> <span class="n">msmInfoList</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+        <span class="n">_registerVizardSpacecraftName</span><span class="p">(</span><span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span><span class="p">,</span> <span class="n">usedSpacecraftNames</span><span class="p">)</span>
+        <span class="n">_handleSubComponents</span><span class="p">(</span>
+            <span class="n">scData</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span>
+            <span class="n">rwEffectorList</span><span class="o">=</span><span class="n">rwEffectorList</span><span class="p">,</span>
+            <span class="n">thrEffectorList</span><span class="o">=</span><span class="n">thrEffectorList</span><span class="p">,</span>
+            <span class="n">thrColors</span><span class="o">=</span><span class="n">thrColors</span><span class="p">,</span>
+            <span class="n">cssList</span><span class="o">=</span><span class="n">cssList</span><span class="p">,</span>
+            <span class="n">genericSensorList</span><span class="o">=</span><span class="n">genericSensorList</span><span class="p">,</span>
+            <span class="n">ellipsoidList</span><span class="o">=</span><span class="n">ellipsoidList</span><span class="p">,</span>
+            <span class="n">lightList</span><span class="o">=</span><span class="n">lightList</span><span class="p">,</span>
+            <span class="n">genericStorageList</span><span class="o">=</span><span class="n">genericStorageList</span><span class="p">,</span>
+            <span class="n">transceiverList</span><span class="o">=</span><span class="n">transceiverList</span><span class="p">,</span>
+            <span class="n">spriteList</span><span class="o">=</span><span class="n">spriteList</span><span class="p">,</span>
+            <span class="n">modelDictionaryKeyList</span><span class="o">=</span><span class="n">modelDictionaryKeyList</span><span class="p">,</span>
+            <span class="n">logoTextureList</span><span class="o">=</span><span class="n">logoTextureList</span><span class="p">,</span>
+            <span class="n">oscOrbitColorList</span><span class="o">=</span><span class="n">oscOrbitColorList</span><span class="p">,</span>
+            <span class="n">trueOrbitColorList</span><span class="o">=</span><span class="n">trueOrbitColorList</span><span class="p">,</span>
+            <span class="n">trueOrbitColorInMsgList</span><span class="o">=</span><span class="n">trueOrbitColorInMsgList</span><span class="p">,</span>
+            <span class="n">groundTrackColorList</span><span class="o">=</span><span class="n">groundTrackColorList</span><span class="p">,</span>
+            <span class="n">groundTrackBodyNameList</span><span class="o">=</span><span class="n">groundTrackBodyNameList</span><span class="p">,</span>
+            <span class="n">msmInfoList</span><span class="o">=</span><span class="n">msmInfoList</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="n">scSim</span><span class="o">.</span><span class="n">vizMessenger</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">scData</span><span class="p">)</span>
-
-        <span class="n">c</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="n">scSim</span><span class="o">.</span><span class="n">vizMessenger</span><span class="o">.</span><span class="n">gravBodyInformation</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GravBodyInfoVector</span><span class="p">(</span><span class="n">planetInfoList</span><span class="p">)</span>
     <span class="n">scSim</span><span class="o">.</span><span class="n">vizMessenger</span><span class="o">.</span><span class="n">spiceInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">SpicePlanetStateMsgInMsgsVector</span><span class="p">(</span><span class="n">spiceMsgList</span><span class="p">)</span>

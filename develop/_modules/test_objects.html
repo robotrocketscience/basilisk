@@ -123,6 +123,7 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">Basilisk.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">mujoco</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">Basilisk.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">svIntegrators</span>
 
     <span class="n">couldImportMujoco</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="k">except</span><span class="p">:</span>
@@ -178,6 +179,28 @@
     <span class="c1"># Move time forward, which will trigger a re-compile (since</span>
     <span class="c1"># we added actuators), and check that the simulation runs ok</span>
     <span class="n">scene</span><span class="o">.</span><span class="n">UpdateState</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="test_adaptive_free_joint_translation_tolerances_are_stage_independent">
+<a class="viewcode-back" href="../Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/_UnitTest/test_objects.html#test_objects.test_adaptive_free_joint_translation_tolerances_are_stage_independent">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skipif</span><span class="p">(</span><span class="ow">not</span> <span class="n">couldImportMujoco</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Compiled Basilisk without --mujoco&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_adaptive_free_joint_translation_tolerances_are_stage_independent</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests MJScene zeroes bulk relTol for a free body through the adaptive-integrator interface.</span>
+
+<span class="sd">    The relative-tolerance conditioning fix applies to any free-joint body at</span>
+<span class="sd">    orbital scale, independent of how its gravity is applied, so the presence of</span>
+<span class="sd">    a free body (``cube`` here) alone should trigger it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">scene</span> <span class="o">=</span> <span class="n">mujoco</span><span class="o">.</span><span class="n">MJScene</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="n">XML_PATH</span><span class="p">)</span>
+
+    <span class="n">integrator</span> <span class="o">=</span> <span class="n">svIntegrators</span><span class="o">.</span><span class="n">svIntegratorRKF78</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
+    <span class="n">scene</span><span class="o">.</span><span class="n">setIntegrator</span><span class="p">(</span><span class="n">integrator</span><span class="p">)</span>
+    <span class="n">scene</span><span class="o">.</span><span class="n">Reset</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">integrator</span><span class="o">.</span><span class="n">getRelativeTolerance</span><span class="p">(</span><span class="s2">&quot;mujocoQpos&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">integrator</span><span class="o">.</span><span class="n">getRelativeTolerance</span><span class="p">(</span><span class="s2">&quot;mujocoQvel&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span></div>
 
 
 

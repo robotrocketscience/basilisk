@@ -263,28 +263,20 @@ we need to manually add these to the <code class="docutils literal notranslate">
 </pre></div>
 </div>
 <p>Finally, to add a thruster visualization for the thruster burn mode, the <code class="docutils literal notranslate"><span class="pre">vizInterface</span></code> is again invoked.
-Here we manually add the Vizard interface elements back in to redo what the <code class="docutils literal notranslate"><span class="pre">enableUnityVisualization()</span></code>
-normally does for us.  The main difference is that we are manually setting the thruster information as
-the spacecraft dynamics does not contain a thruster effector:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">scData</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">VizSpacecraftData</span><span class="p">()</span>
-<span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">scObject</span><span class="o">.</span><span class="n">ModelTag</span>
-<span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">scObject</span><span class="o">.</span><span class="n">scStateOutMsg</span><span class="p">)</span>
-<span class="n">scData</span><span class="o">.</span><span class="n">transceiverList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">TransceiverVector</span><span class="p">([</span><span class="n">transceiverHUD</span><span class="p">])</span>
-<span class="n">scData</span><span class="o">.</span><span class="n">genericSensorList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericSensorVector</span><span class="p">([</span><span class="n">genericSensor</span><span class="p">])</span>
-
-<span class="n">thrusterMsgInfo</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsgPayload</span><span class="p">()</span>
+Here we add custom visualization elements to the spacecraft data entry created by
+<code class="docutils literal notranslate"><span class="pre">enableUnityVisualization()</span></code>.  The main difference is that we are manually setting the thruster
+information as the spacecraft dynamics does not contain a thruster effector:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">thrusterMsgInfo</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsgPayload</span><span class="p">()</span>
 <span class="n">thrusterMsgInfo</span><span class="o">.</span><span class="n">maxThrust</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Newtons</span>
 <span class="n">thrusterMsgInfo</span><span class="o">.</span><span class="n">thrustForce</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Newtons</span>
 <span class="n">thrusterMsgInfo</span><span class="o">.</span><span class="n">thrusterLocation</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">]</span>
 <span class="n">thrusterMsgInfo</span><span class="o">.</span><span class="n">thrusterDirection</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 <span class="n">thrMsg</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsg</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">thrusterMsgInfo</span><span class="p">)</span>
-<span class="n">scData</span><span class="o">.</span><span class="n">thrInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputInMsgsVector</span><span class="p">([</span><span class="n">thrMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">()])</span>
-</pre></div>
-</div>
-<p>After running the <code class="docutils literal notranslate"><span class="pre">enableUnityVisualization()</span></code> method, we need to clear the <code class="docutils literal notranslate"><span class="pre">vizInterface</span></code> spacecraft
-data container <code class="docutils literal notranslate"><span class="pre">scData</span></code> and push our custom copy to it:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-<span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">scData</span><span class="p">)</span>
+
+<span class="n">scData</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">scData</span><span class="o">.</span><span class="n">transceiverList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">TransceiverVector</span><span class="p">([</span><span class="n">transceiverHUD</span><span class="p">])</span>
+<span class="n">scData</span><span class="o">.</span><span class="n">genericSensorList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericSensorVector</span><span class="p">([</span><span class="n">genericSensor</span><span class="p">])</span>
+<span class="n">scData</span><span class="o">.</span><span class="n">thrInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsgInMsgsVector</span><span class="p">([</span><span class="n">thrMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">()])</span>
 </pre></div>
 </div>
 </section>

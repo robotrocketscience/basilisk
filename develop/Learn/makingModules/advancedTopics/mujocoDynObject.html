@@ -152,17 +152,13 @@ exposed through <a class="reference internal" href="../../../Documentation/simul
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p>By default, Basilisk will not build MuJoCo-related capabilities. To enable these, modify the call to
 <code class="docutils literal notranslate"><span class="pre">conanfile.py</span></code> during installation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(venv) $ python conanfile.py --mujoco True --mujocoReplay True
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(venv) $ python conanfile.py --mujoco True
 </pre></div>
 </div>
-<p>Only the <code class="docutils literal notranslate"><span class="pre">--mujoco</span> <span class="pre">True</span></code> option is required. <code class="docutils literal notranslate"><span class="pre">--mujocoReplay</span> <span class="pre">True</span></code> will additionally build an
-independent tool that can be used to visualize the results of <a class="reference internal" href="../../../Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#mjscene"><span class="std std-ref">MJScene</span></a> simulations. When
-using <code class="docutils literal notranslate"><span class="pre">--mujocoReplay</span> <span class="pre">True</span></code>, you’ll be able to call:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mujoco</span><span class="o">.</span><span class="n">visualize</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Note that using <code class="docutils literal notranslate"><span class="pre">--mujocoReplay</span> <span class="pre">True</span></code> might require the installation of other graphic libraries
-in your system.</p>
+<p>Only the <code class="docutils literal notranslate"><span class="pre">--mujoco</span> <span class="pre">True</span></code> option is required.</p>
+<p><a class="reference internal" href="../../../Documentation/simulation/mujocoDynamics/_GeneralModuleFiles/MJScene.html#mjscene"><span class="std std-ref">MJScene</span></a> simulations can be visualized in <a class="reference internal" href="../../../Vizard/Vizard.html#vizard"><span class="std std-ref">Vizard</span></a> using the standard
+<code class="docutils literal notranslate"><span class="pre">enableUnityVisualization</span></code> call, just like any other Basilisk simulation. See <a class="reference internal" href="../../../examples/mujoco/scenarioDeployPanels.html#scenariodeploypanels"><span class="std std-ref">scenarioDeployPanels</span></a>
+for an example.</p>
 </section>
 <section id="the-multi-body-system">
 <h2>The Multi-body System<a class="headerlink" href="#the-multi-body-system" title="Link to this heading"></a></h2>

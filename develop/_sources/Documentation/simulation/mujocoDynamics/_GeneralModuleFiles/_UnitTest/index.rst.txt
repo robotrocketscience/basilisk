@@ -16,7 +16,6 @@ _UnitTest
    test_site_velocity
    test_stateful_numba_model
    test_stateful_sys_model
-   test_vis
 .. toctree::
    :maxdepth: 1
    :caption: Directories:

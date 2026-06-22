@@ -188,6 +188,20 @@
 <dd><p>Sets the name of the given MuJoCo spec object. </p>
 </dd></dl>
 
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN10MJBasilisk6detail11logAndThrowEvRKNSt6stringE">
+<span id="_CPPv3I0EN10MJBasilisk6detail11logAndThrowERKNSt6stringE"></span><span id="_CPPv2I0EN10MJBasilisk6detail11logAndThrowERKNSt6stringE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ExceptionType</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">runtime_error</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="_m_j_utils_8h_1a65b3c63799bc7fa7e8ae28819269b0f7"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">logAndThrow</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">message</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN10MJBasilisk6detail11logAndThrowEvRKNSt6stringE" title="Link to this definition"></a><br /></dt>
+<dd><p>Logs an error via BSKLogger then throws an exception of type <code class="docutils literal notranslate"><span class="pre">ExceptionType</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ExceptionType</strong> – Exception to throw (default: <code class="docutils literal notranslate"><span class="pre">std::runtime_error</span></code>). </p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>message</strong> – Human-readable error message. </p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </dd></dl>
 

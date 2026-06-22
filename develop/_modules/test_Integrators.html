@@ -168,6 +168,32 @@
 
 
 
+<div class="viewcode-block" id="test_adaptive_integrator_state_specific_tolerances_insert">
+<a class="viewcode-back" href="../Documentation/simulation/dynamics/Integrators/_UnitTest/test_Integrators.html#test_Integrators.test_adaptive_integrator_state_specific_tolerances_insert">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_adaptive_integrator_state_specific_tolerances_insert</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check adaptive integrator state-specific tolerance setters insert new keys.&quot;&quot;&quot;</span>
+    <span class="n">relTol</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># [-]</span>
+    <span class="n">absTol</span> <span class="o">=</span> <span class="mf">1e-6</span>  <span class="c1"># [-]</span>
+    <span class="n">objectRelTol</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1"># [-]</span>
+    <span class="n">objectAbsTol</span> <span class="o">=</span> <span class="mf">0.3</span>  <span class="c1"># [-]</span>
+    <span class="n">stateName</span> <span class="o">=</span> <span class="s2">&quot;customState&quot;</span>
+    <span class="n">objectStateName</span> <span class="o">=</span> <span class="s2">&quot;objectCustomState&quot;</span>
+
+    <span class="n">scObject</span> <span class="o">=</span> <span class="n">spacecraft</span><span class="o">.</span><span class="n">Spacecraft</span><span class="p">()</span>
+    <span class="n">integratorObject</span> <span class="o">=</span> <span class="n">svIntegrators</span><span class="o">.</span><span class="n">svIntegratorRKF45</span><span class="p">(</span><span class="n">scObject</span><span class="p">)</span>
+
+    <span class="n">integratorObject</span><span class="o">.</span><span class="n">setRelativeTolerance</span><span class="p">(</span><span class="n">stateName</span><span class="p">,</span> <span class="n">relTol</span><span class="p">)</span>
+    <span class="n">integratorObject</span><span class="o">.</span><span class="n">setAbsoluteTolerance</span><span class="p">(</span><span class="n">stateName</span><span class="p">,</span> <span class="n">absTol</span><span class="p">)</span>
+    <span class="n">integratorObject</span><span class="o">.</span><span class="n">setRelativeTolerance</span><span class="p">(</span><span class="n">scObject</span><span class="p">,</span> <span class="n">objectStateName</span><span class="p">,</span> <span class="n">objectRelTol</span><span class="p">)</span>
+    <span class="n">integratorObject</span><span class="o">.</span><span class="n">setAbsoluteTolerance</span><span class="p">(</span><span class="n">scObject</span><span class="p">,</span> <span class="n">objectStateName</span><span class="p">,</span> <span class="n">objectAbsTol</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">integratorObject</span><span class="o">.</span><span class="n">getRelativeTolerance</span><span class="p">(</span><span class="n">stateName</span><span class="p">)</span> <span class="o">==</span> <span class="n">relTol</span>
+    <span class="k">assert</span> <span class="n">integratorObject</span><span class="o">.</span><span class="n">getAbsoluteTolerance</span><span class="p">(</span><span class="n">stateName</span><span class="p">)</span> <span class="o">==</span> <span class="n">absTol</span>
+    <span class="k">assert</span> <span class="n">integratorObject</span><span class="o">.</span><span class="n">getRelativeTolerance</span><span class="p">(</span><span class="n">scObject</span><span class="p">,</span> <span class="n">objectStateName</span><span class="p">)</span> <span class="o">==</span> <span class="n">objectRelTol</span>
+    <span class="k">assert</span> <span class="n">integratorObject</span><span class="o">.</span><span class="n">getAbsoluteTolerance</span><span class="p">(</span><span class="n">scObject</span><span class="p">,</span> <span class="n">objectStateName</span><span class="p">)</span> <span class="o">==</span> <span class="n">objectAbsTol</span></div>
+
+
+
 <div class="viewcode-block" id="run">
 <a class="viewcode-back" href="../Documentation/simulation/dynamics/Integrators/_UnitTest/test_Integrators.html#test_Integrators.run">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">doUnitTests</span><span class="p">,</span> <span class="n">show_plots</span><span class="p">,</span> <span class="n">integratorCase</span><span class="p">):</span>

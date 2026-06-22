@@ -245,15 +245,9 @@
 <span class="sd">                                    pointingVector_B=[0,1,0], position_B=cameraLocation)</span>
 
 <span class="sd">Finally, to add a thruster visualization for the thruster burn mode, the ``vizInterface`` is again invoked.</span>
-<span class="sd">Here we manually add the Vizard interface elements back in to redo what the ``enableUnityVisualization()``</span>
-<span class="sd">normally does for us.  The main difference is that we are manually setting the thruster information as</span>
-<span class="sd">the spacecraft dynamics does not contain a thruster effector::</span>
-
-<span class="sd">    scData = vizInterface.VizSpacecraftData()</span>
-<span class="sd">    scData.spacecraftName = scObject.ModelTag</span>
-<span class="sd">    scData.scStateInMsg.subscribeTo(scObject.scStateOutMsg)</span>
-<span class="sd">    scData.transceiverList = vizInterface.TransceiverVector([transceiverHUD])</span>
-<span class="sd">    scData.genericSensorList = vizInterface.GenericSensorVector([genericSensor])</span>
+<span class="sd">Here we add custom visualization elements to the spacecraft data entry created by</span>
+<span class="sd">``enableUnityVisualization()``.  The main difference is that we are manually setting the thruster</span>
+<span class="sd">information as the spacecraft dynamics does not contain a thruster effector::</span>
 
 <span class="sd">    thrusterMsgInfo = messaging.THROutputMsgPayload()</span>
 <span class="sd">    thrusterMsgInfo.maxThrust = 1  # Newtons</span>
@@ -261,13 +255,11 @@
 <span class="sd">    thrusterMsgInfo.thrusterLocation = [0, 0, -1.5]</span>
 <span class="sd">    thrusterMsgInfo.thrusterDirection = [0, 0, 1]</span>
 <span class="sd">    thrMsg = messaging.THROutputMsg().write(thrusterMsgInfo)</span>
-<span class="sd">    scData.thrInMsgs = messaging.THROutputInMsgsVector([thrMsg.addSubscriber()])</span>
 
-<span class="sd">After running the ``enableUnityVisualization()`` method, we need to clear the ``vizInterface`` spacecraft</span>
-<span class="sd">data container ``scData`` and push our custom copy to it::</span>
-
-<span class="sd">    viz.scData.clear()</span>
-<span class="sd">    viz.scData.push_back(scData)</span>
+<span class="sd">    scData = viz.scData[0]</span>
+<span class="sd">    scData.transceiverList = vizInterface.TransceiverVector([transceiverHUD])</span>
+<span class="sd">    scData.genericSensorList = vizInterface.GenericSensorVector([genericSensor])</span>
+<span class="sd">    scData.thrInMsgs = messaging.THROutputMsgInMsgsVector([thrMsg.addSubscriber()])</span>
 
 
 <span class="sd">Illustration of Simulation Results</span>
@@ -583,13 +575,6 @@
         <span class="c1"># Set up the thruster visualization info</span>
         <span class="c1"># Note: This process is different from the usual procedure of creating a thruster effector.</span>
         <span class="c1"># The following code creates a thruster visualization only.</span>
-        <span class="c1"># before adding the thruster</span>
-        <span class="n">scData</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">VizSpacecraftData</span><span class="p">()</span>
-        <span class="n">scData</span><span class="o">.</span><span class="n">spacecraftName</span> <span class="o">=</span> <span class="n">scObject</span><span class="o">.</span><span class="n">ModelTag</span>
-        <span class="n">scData</span><span class="o">.</span><span class="n">scStateInMsg</span><span class="o">.</span><span class="n">subscribeTo</span><span class="p">(</span><span class="n">scObject</span><span class="o">.</span><span class="n">scStateOutMsg</span><span class="p">)</span>
-        <span class="n">scData</span><span class="o">.</span><span class="n">transceiverList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">TransceiverVector</span><span class="p">([</span><span class="n">transceiverHUD</span><span class="p">])</span>
-        <span class="n">scData</span><span class="o">.</span><span class="n">genericSensorList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericSensorVector</span><span class="p">([</span><span class="n">genericSensor</span><span class="p">])</span>
-
         <span class="n">thrusterMsgInfo</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsgPayload</span><span class="p">(</span>
             <span class="n">maxThrust</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">thrustForce</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -598,11 +583,9 @@
         <span class="p">)</span>
 
         <span class="n">thrMsg</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsg</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">thrusterMsgInfo</span><span class="p">)</span>
-        <span class="n">scData</span><span class="o">.</span><span class="n">thrInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsgInMsgsVector</span><span class="p">([</span><span class="n">thrMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">()])</span>
 
         <span class="n">thrInfo</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">ThrClusterMap</span><span class="p">()</span>
         <span class="n">thrInfo</span><span class="o">.</span><span class="n">thrTag</span> <span class="o">=</span> <span class="s2">&quot;DV&quot;</span>
-        <span class="n">scData</span><span class="o">.</span><span class="n">thrInfo</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">ThrClusterVector</span><span class="p">([</span><span class="n">thrInfo</span><span class="p">])</span>
 
         <span class="c1"># Create the Vizard visualization file and set parameters</span>
         <span class="n">viz</span> <span class="o">=</span> <span class="n">vizSupport</span><span class="o">.</span><span class="n">enableUnityVisualization</span><span class="p">(</span><span class="n">scSim</span><span class="p">,</span> <span class="n">simTaskName</span><span class="p">,</span> <span class="n">scObject</span>
@@ -623,13 +606,15 @@
         <span class="c1"># Create the science mode camera</span>
         <span class="n">vizSupport</span><span class="o">.</span><span class="n">createStandardCamera</span><span class="p">(</span><span class="n">viz</span><span class="p">,</span> <span class="n">setMode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">spacecraftName</span><span class="o">=</span><span class="n">scObject</span><span class="o">.</span><span class="n">ModelTag</span><span class="p">,</span>
                                         <span class="n">fieldOfView</span><span class="o">=</span><span class="mi">10</span> <span class="o">*</span> <span class="n">macros</span><span class="o">.</span><span class="n">D2R</span><span class="p">,</span>
-                                        <span class="n">displayName</span><span class="o">=</span><span class="s2">&quot;10˚ FOV Camera&quot;</span><span class="p">,</span>
+                                        <span class="n">displayName</span><span class="o">=</span><span class="s2">&quot;10 deg FOV Camera&quot;</span><span class="p">,</span>
                                         <span class="n">pointingVector_B</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">position_B</span><span class="o">=</span><span class="n">cameraLocation</span><span class="p">)</span>
 
-        <span class="c1"># Note: After running the enableUnityVisualization() method, we need to clear the</span>
-        <span class="c1"># vizInterface spacecraft data container, scData, and push our custom copy to it.</span>
-        <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="o">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">scData</span><span class="p">)</span>
+        <span class="c1"># Add custom visualization elements to the scData entry created by enableUnityVisualization().</span>
+        <span class="n">scData</span> <span class="o">=</span> <span class="n">viz</span><span class="o">.</span><span class="n">scData</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">transceiverList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">TransceiverVector</span><span class="p">([</span><span class="n">transceiverHUD</span><span class="p">])</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">genericSensorList</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">GenericSensorVector</span><span class="p">([</span><span class="n">genericSensor</span><span class="p">])</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">thrInMsgs</span> <span class="o">=</span> <span class="n">messaging</span><span class="o">.</span><span class="n">THROutputMsgInMsgsVector</span><span class="p">([</span><span class="n">thrMsg</span><span class="o">.</span><span class="n">addSubscriber</span><span class="p">()])</span>
+        <span class="n">scData</span><span class="o">.</span><span class="n">thrInfo</span> <span class="o">=</span> <span class="n">vizInterface</span><span class="o">.</span><span class="n">ThrClusterVector</span><span class="p">([</span><span class="n">thrInfo</span><span class="p">])</span>
 
     <span class="c1"># Initialize and execute the simulation for the first section</span>
     <span class="n">scSim</span><span class="o">.</span><span class="n">InitializeSimulation</span><span class="p">()</span>

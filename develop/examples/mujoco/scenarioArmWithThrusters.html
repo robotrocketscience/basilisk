@@ -75,6 +75,7 @@
 <li class="toctree-l4"><a class="reference internal" href="scenarioFormationFlyingWithDrag.html">Translation-only formation flying under differential drag</a></li>
 <li class="toctree-l4"><a class="reference internal" href="scenarioStochasticDrag.html">Satellite Drag with Stochastic (Random) Density using MuJoCo</a></li>
 <li class="toctree-l4"><a class="reference internal" href="scenarioThrArmControl.html">Spacecraft Control with Thruster Arms using MuJoCo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scenarioMJSceneVizard.html">Combining MuJoCo Scenes and a Spacecraft in Vizard</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#support-files">Support Files</a></li>
 </ul>
 </li>
@@ -212,18 +213,23 @@ regular task, the interpolation would only happen at the task rate, which means
 that the thrust/joint values would only be updated at the fixed rate of 1 Hz.
 Whether you add a model to the dynamics task or the regular task depends on
 the specific use case.</p>
+<p>The system can also be visualized in <a class="reference internal" href="../../Vizard/Vizard.html#vizard"><span class="std std-ref">Vizard</span></a> through the
+<code class="docutils literal notranslate"><span class="pre">enableUnityVisualization</span></code> call.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="scenarioArmWithThrusters.ThrusterVizMessageWriter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">scenarioArmWithThrusters.</span></span><span class="sig-name descname"><span class="pre">ThrusterVizMessageWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scenarioArmWithThrusters.html#ThrusterVizMessageWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scenarioArmWithThrusters.ThrusterVizMessageWriter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SysModel</span></code></p>
+<p>Publish a <code class="docutils literal notranslate"><span class="pre">THROutputMsg</span></code> for a MuJoCo single-actuator thruster.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="scenarioArmWithThrusters.run">
-<span class="sig-prename descclassname"><span class="pre">scenarioArmWithThrusters.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">showPlots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scenarioArmWithThrusters.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scenarioArmWithThrusters.run" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">scenarioArmWithThrusters.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">showPlots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scenarioArmWithThrusters.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scenarioArmWithThrusters.run" title="Link to this definition"></a></dt>
 <dd><p>Main function, see scenario description.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>showPlots</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, simulation results are plotted and show.
-Defaults to False.</p></li>
-<li><p><strong>visualize</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the <code class="docutils literal notranslate"><span class="pre">MJScene</span></code> visualization tool is
-run on the simulation results. Defaults to False.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>showPlots</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, simulation results are plotted and show.
+Defaults to False.</p>
 </dd>
 </dl>
 </dd></dl>

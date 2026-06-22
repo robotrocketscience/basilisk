@@ -200,10 +200,9 @@ and the shared libraries it needs at runtime.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--opNav</span> <span class="pre">True</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--mujoco</span> <span class="pre">True</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--mujocoReplay</span> <span class="pre">True</span></code></p></li>
 </ul>
 <p>You can override these at build time:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">build</span> <span class="o">--</span><span class="n">build</span><span class="o">-</span><span class="n">arg</span> <span class="n">CONAN_ARGS</span><span class="o">=</span><span class="s2">&quot;--opNav True --mujoco False --mujocoReplay False&quot;</span> <span class="o">-</span><span class="n">t</span> <span class="n">bsk</span><span class="p">:</span><span class="n">local</span> <span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">build</span> <span class="o">--</span><span class="n">build</span><span class="o">-</span><span class="n">arg</span> <span class="n">CONAN_ARGS</span><span class="o">=</span><span class="s2">&quot;--opNav True --mujoco False&quot;</span> <span class="o">-</span><span class="n">t</span> <span class="n">bsk</span><span class="p">:</span><span class="n">local</span> <span class="o">.</span>
 </pre></div>
 </div>
 <p>To build a development image with the full toolchain (compiler, cmake, swig,

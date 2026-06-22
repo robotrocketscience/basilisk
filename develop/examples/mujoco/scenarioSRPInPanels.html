@@ -75,6 +75,7 @@
 <li class="toctree-l4"><a class="reference internal" href="scenarioFormationFlyingWithDrag.html">Translation-only formation flying under differential drag</a></li>
 <li class="toctree-l4"><a class="reference internal" href="scenarioStochasticDrag.html">Satellite Drag with Stochastic (Random) Density using MuJoCo</a></li>
 <li class="toctree-l4"><a class="reference internal" href="scenarioThrArmControl.html">Spacecraft Control with Thruster Arms using MuJoCo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scenarioMJSceneVizard.html">Combining MuJoCo Scenes and a Spacecraft in Vizard</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#support-files">Support Files</a></li>
 </ul>
 </li>
@@ -210,6 +211,8 @@ actuators are treated equally by the engine, we obtain a very modular architectu
 that reduces development effort.</p>
 <p>Note: * There are many reasons why <code class="docutils literal notranslate"><span class="pre">C_SRP</span></code> may not actually be constant in reality
 (distance from sun, eclipses, material degradation…). This is a simplification!</p>
+<p>The system can also be visualized in <a class="reference internal" href="../../Vizard/Vizard.html#vizard"><span class="std std-ref">Vizard</span></a> through the
+<code class="docutils literal notranslate"><span class="pre">enableUnityVisualization</span></code> call.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="scenarioSRPInPanels.SRPPanel">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">scenarioSRPInPanels.</span></span><span class="sig-name descname"><span class="pre">SRPPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scenarioSRPInPanels.html#SRPPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scenarioSRPInPanels.SRPPanel" title="Link to this definition"></a></dt>
@@ -226,7 +229,7 @@ Pressure (SRP) force that would act on a flat plate.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scenarioSRPInPanels.run">
-<span class="sig-prename descclassname"><span class="pre">scenarioSRPInPanels.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initialSpin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">showPlots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scenarioSRPInPanels.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scenarioSRPInPanels.run" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">scenarioSRPInPanels.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initialSpin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">showPlots</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/scenarioSRPInPanels.html#run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scenarioSRPInPanels.run" title="Link to this definition"></a></dt>
 <dd><p>Main function, see scenario description.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -235,8 +238,6 @@ Pressure (SRP) force that would act on a flat plate.</p>
 angular velocity. Defaults to False.</p></li>
 <li><p><strong>showPlots</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, simulation results are plotted and show.
 Defaults to False.</p></li>
-<li><p><strong>visualize</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the <code class="docutils literal notranslate"><span class="pre">MJScene</span></code> visualization tool is
-run on the simulation results. Defaults to False.</p></li>
 </ul>
 </dd>
 </dl>
