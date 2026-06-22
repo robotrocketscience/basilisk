@@ -59,24 +59,9 @@ WARNING = LogLevel.WARNING
 ERROR = LogLevel.ERROR
 SILENT = LogLevel.SILENT
 
-def _bskLogger_debug(self, msg):
-    self._pyDebug(msg)
-
-def _bskLogger_info(self, msg):
-    self._pyInfo(msg)
-
-def _bskLogger_warning(self, msg):
-    self._pyWarning(msg)
-
-def _bskLogger_error(self, msg):
-    self.bskError(msg)
-
-def _bskLogger_setLevel(self, level):
-    self.setLogLevel(level)
-
-BSKLogger.debug = _bskLogger_debug
-BSKLogger.info = _bskLogger_info
-BSKLogger.warning = _bskLogger_warning
-BSKLogger.error = _bskLogger_error
-BSKLogger.setLevel = _bskLogger_setLevel
+# The debug()/info()/warning()/error()/setLevel() convenience methods are defined
+# as SWIG %extend methods in bskLogging.h, not monkey-patched here. That way they
+# exist on every BSKLogger proxy class regardless of module import order; a Python
+# patch on this module's BSKLogger would not reach instances vended by other
+# modules that %include bskLogging.h (e.g. anything derived from SysModel).
 %}
