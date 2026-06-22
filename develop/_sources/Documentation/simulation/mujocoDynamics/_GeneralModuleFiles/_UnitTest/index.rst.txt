@@ -10,6 +10,7 @@ _UnitTest
    :caption: Files:
 
    test_integration
+   test_mass_props_and_com
    test_mass_update
    test_objects
    test_site_velocity
