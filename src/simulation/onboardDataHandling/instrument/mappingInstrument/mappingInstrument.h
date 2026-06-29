@@ -37,6 +37,11 @@ public:
     MappingInstrument();
     ~MappingInstrument();
 
+    // Non-copyable: owns heap-allocated output messages freed in the destructor;
+    // a shallow copy would double-free them (issue #643).
+    MappingInstrument(const MappingInstrument &) = delete;
+    MappingInstrument &operator=(const MappingInstrument &) = delete;
+
     void Reset(uint64_t CurrentSimNanos);
     void UpdateState(uint64_t CurrentSimNanos);
     void addMappingPoint(Message<AccessMsgPayload> *tmpAccessMsg, std::string dataName); //!< connects accessMsgPayload to instrument

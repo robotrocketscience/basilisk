@@ -40,6 +40,12 @@ class MagneticFieldBase: public SysModel  {
 public:
     MagneticFieldBase();
     ~MagneticFieldBase();
+
+    // Non-copyable: owns heap-allocated output messages freed in the destructor;
+    // a shallow copy would double-free them (issue #643). Deleting these here
+    // also makes the derived magnetic-field models non-copyable.
+    MagneticFieldBase(const MagneticFieldBase &) = delete;
+    MagneticFieldBase &operator=(const MagneticFieldBase &) = delete;
     void Reset(uint64_t CurrentSimNanos);
     void addSpacecraftToModel(Message<SCStatesMsgPayload> *tmpScMsg);
     void UpdateState(uint64_t CurrentSimNanos);

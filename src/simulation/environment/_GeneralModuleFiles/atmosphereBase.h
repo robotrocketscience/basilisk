@@ -38,6 +38,12 @@ class AtmosphereBase: public SysModel  {
 public:
     AtmosphereBase();
     ~AtmosphereBase();
+
+    // Non-copyable: owns heap-allocated output messages freed in the destructor;
+    // a shallow copy would double-free them (issue #643). Deleting these here
+    // also makes the derived atmosphere models non-copyable.
+    AtmosphereBase(const AtmosphereBase &) = delete;
+    AtmosphereBase &operator=(const AtmosphereBase &) = delete;
     void Reset(uint64_t CurrentSimNanos);
     void addSpacecraftToModel(Message<SCStatesMsgPayload> *tmpScMsg);
     void UpdateState(uint64_t CurrentSimNanos);

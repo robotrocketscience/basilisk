@@ -120,6 +120,11 @@ public:
     SpiceInterface();
     ~SpiceInterface();
 
+    // Non-copyable: owns heap-allocated output messages freed in the destructor;
+    // a shallow copy would double-free them (issue #643).
+    SpiceInterface(const SpiceInterface &) = delete;
+    SpiceInterface &operator=(const SpiceInterface &) = delete;
+
     void UpdateState(uint64_t CurrentSimNanos);
     int loadSpiceKernel(char *kernelName, const char *dataPath);
     int unloadSpiceKernel(char *kernelName, const char *dataPath);

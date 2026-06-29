@@ -39,6 +39,11 @@ class SpacecraftLocation : public SysModel
   public:
     SpacecraftLocation();
     ~SpacecraftLocation();
+
+    // Non-copyable: owns heap-allocated output messages freed in the destructor;
+    // a shallow copy would double-free them (issue #643).
+    SpacecraftLocation(const SpacecraftLocation &) = delete;
+    SpacecraftLocation &operator=(const SpacecraftLocation &) = delete;
     void UpdateState(uint64_t CurrentSimNanos);
     void Reset(uint64_t CurrentSimNanos);
     bool ReadMessages();

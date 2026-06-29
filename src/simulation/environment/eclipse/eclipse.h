@@ -39,6 +39,11 @@ public:
     Eclipse();
     ~Eclipse();
 
+    // Non-copyable: owns heap-allocated output messages freed in the destructor;
+    // a shallow copy would double-free them (issue #643).
+    Eclipse(const Eclipse &) = delete;
+    Eclipse &operator=(const Eclipse &) = delete;
+
     void Reset(uint64_t CurrenSimNanos);
     void UpdateState(uint64_t CurrentSimNanos);
     void writeOutputMessages(uint64_t CurrentClock);
