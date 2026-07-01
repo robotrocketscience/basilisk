@@ -41,10 +41,6 @@ public:
     StripLocation();
     ~StripLocation();
 
-    // Non-copyable: owns heap-allocated output messages freed in the destructor;
-    // a shallow copy would double-free them (issue #643).
-    StripLocation(const StripLocation &) = delete;
-    StripLocation &operator=(const StripLocation &) = delete;
     void UpdateState(uint64_t currentSimNanos);
     void Reset(uint64_t currentSimNanos);
     bool ReadMessages();

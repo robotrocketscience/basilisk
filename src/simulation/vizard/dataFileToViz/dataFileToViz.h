@@ -36,10 +36,6 @@ public:
     DataFileToViz();
     ~DataFileToViz();
 
-    // Non-copyable: owns heap-allocated output messages freed in the destructor;
-    // a shallow copy would double-free them (issue #643).
-    DataFileToViz(const DataFileToViz &) = delete;
-    DataFileToViz &operator=(const DataFileToViz &) = delete;
     void Reset(uint64_t CurrentSimNanos);
     void UpdateState(uint64_t CurrentSimNanos);
     void appendThrPos(double pos_B[3]);

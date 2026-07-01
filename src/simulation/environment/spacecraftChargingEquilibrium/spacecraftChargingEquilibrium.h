@@ -48,11 +48,6 @@ public:
     /*! Destructor. */
     ~SpacecraftChargingEquilibrium();
 
-    // Non-copyable: owns heap-allocated output messages freed in the destructor;
-    // a shallow copy would double-free them (issue #643).
-    SpacecraftChargingEquilibrium(const SpacecraftChargingEquilibrium &) = delete;
-    SpacecraftChargingEquilibrium &operator=(const SpacecraftChargingEquilibrium &) = delete;
-
     /*! Reset module state and validate required inputs. */
     void Reset(uint64_t CurrentSimNanos) override;
     /*! Update module outputs by solving coupled equilibrium potentials. */

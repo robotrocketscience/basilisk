@@ -40,11 +40,6 @@ public:
     MsmForceTorque();
     ~MsmForceTorque();
 
-    // Non-copyable: owns heap-allocated output messages freed in the destructor;
-    // a shallow copy would double-free them (issue #643).
-    MsmForceTorque(const MsmForceTorque &) = delete;
-    MsmForceTorque &operator=(const MsmForceTorque &) = delete;
-
     void Reset(uint64_t CurrentSimNanos);
     void UpdateState(uint64_t CurrentSimNanos);
     void addSpacecraftToModel(Message<SCStatesMsgPayload> *tmpScMsg, std::vector<double> radii, std::vector<Eigen::Vector3d> r_SB_B);

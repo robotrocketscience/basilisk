@@ -49,10 +49,6 @@ public:
     ReactionWheelStateEffector();
 	~ReactionWheelStateEffector();
 
-	// Non-copyable: owns heap-allocated output messages freed in the destructor;
-	// a shallow copy would double-free them (issue #643).
-	ReactionWheelStateEffector(const ReactionWheelStateEffector &) = delete;
-	ReactionWheelStateEffector &operator=(const ReactionWheelStateEffector &) = delete;
 	void registerStates(DynParamManager& states);
 	void linkInStates(DynParamManager& states);
     void writeOutputStateMessages(uint64_t integTimeNanos);
